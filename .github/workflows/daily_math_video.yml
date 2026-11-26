@@ -2,12 +2,12 @@ name: Daily Math YouTube Draft
 
 on:
   schedule:
-    # Runs 4 times a day (every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC)
-    - cron: "0 */6 * * *"
+    # Runs once daily at 14:00 UTC (9:00 AM EST / 10:00 AM EDT) to produce & schedule all 4 videos
+    - cron: "0 14 * * *"
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab
 
 jobs:
-  generate-and-upload:
+  generate-and-schedule:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -37,18 +37,19 @@ jobs:
           fi
           printf '%s' "$YOUTUBE_TOKEN_JSON" > token.json
 
-      - name: Run Math YouTube pipeline
+      - name: Produce & schedule 4 daily MPM2D videos
         run: |
           mkdir -p output
           python run_pipeline.py \
-            --topic "Visual proof of completing the square for quadratics" \
-            --output output/completing_the_square.mp4 \
+            --batch 4 \
+            --tz America/Toronto \
+            --output-dir output \
             --token token.json
 
-      - name: Upload rendered video artifact
+      - name: Upload rendered video artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: math-video
-          path: output/completing_the_square.mp4
+          name: math-videos
+          path: output/*.mp4
           if-no-files-found: ignore
