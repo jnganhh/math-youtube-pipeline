@@ -1,0 +1,54 @@
+name: Daily Math YouTube Draft
+
+on:
+  schedule:
+    # Runs every day at 14:00 UTC (6:00 AM PST / 9:00 AM EST)
+    - cron: "0 14 * * *"
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  generate-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg texlive texlive-latex-extra libcairo2-dev libpango1.0-dev
+
+      - name: Install Python dependencies
+        run: |
+          pip install -q manim edge-tts google-api-python-client google-auth-oauthlib
+
+      - name: Write YouTube OAuth token
+        env:
+          YOUTUBE_TOKEN_JSON: ${{ secrets.YOUTUBE_TOKEN_JSON }}
+        run: |
+          if [ -z "$YOUTUBE_TOKEN_JSON" ]; then
+            echo "Error: YOUTUBE_TOKEN_JSON secret is not set."
+            exit 1
+          fi
+          printf '%s' "$YOUTUBE_TOKEN_JSON" > token.json
+
+      - name: Run Math YouTube pipeline
+        run: |
+          mkdir -p output
+          python run_pipeline.py \
+            --topic "Visual proof of completing the square for quadratics" \
+            --output output/completing_the_square.mp4 \
+            --token token.json
+
+      - name: Upload rendered video artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: math-video
+          path: output/completing_the_square.mp4
+          if-no-files-found: ignore
