@@ -1,9 +1,7 @@
 {
   "cycle": 1,
-  "published": [],
-  "pending": {
-    "topic": "substitute_for_x",
-    "publish_at": "2026-11-26T22:30:00Z",
-    "attempt": "24522e55bb154c53836d40eb2615bcaf"
-  }
+  "published": [
+    "substitute_for_x"
+  ],
+  "pending": null
 }
