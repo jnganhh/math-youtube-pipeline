@@ -3,11 +3,8 @@
   "published": [
     "substitute_for_x",
     "circle_tangent",
-    "tangent_tower"
+    "tangent_tower",
+    "factoring_special_product"
   ],
-  "pending": {
-    "topic": "factoring_special_product",
-    "publish_at": "2026-11-27T03:00:00Z",
-    "attempt": "c165c9c6f41a4b56b76bbf05d9cd4a9b"
-  }
+  "pending": null
 }
