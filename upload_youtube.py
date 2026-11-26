@@ -103,8 +103,7 @@ def upload_video(
             "categoryId": meta["categoryId"],
         },
         "status": {
-            # HARD REQUIREMENT: Always upload as private draft
-            "privacyStatus": "private",
+            "privacyStatus": "public",
             "selfDeclaredMadeForKids": False,
         },
     }

@@ -2,8 +2,8 @@ name: Daily Math YouTube Draft
 
 on:
   schedule:
-    # Runs every day at 14:00 UTC (6:00 AM PST / 9:00 AM EST)
-    - cron: "0 14 * * *"
+    # Runs 4 times a day (every 6 hours: 00:00, 06:00, 12:00, 18:00 UTC)
+    - cron: "0 */6 * * *"
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab
 
 jobs:
