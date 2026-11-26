@@ -34,34 +34,35 @@ class CompletingTheSquareScene(Scene):
     def construct(self):
         self.camera.background_color = "#0f172a"
 
-        # Title
-        title = Text("Completing the Square", font_size=44, color=WHITE, weight=BOLD)
-        subtitle = Text("Visual Proof", font_size=30, color="#38bdf8")
-        header = VGroup(title, subtitle).arrange(DOWN, buff=0.18).to_edge(UP, buff=0.7)
+        # Title (Top zone)
+        title = Text("Completing the Square", font_size=38, color=WHITE, weight=BOLD)
+        subtitle = Text("Visual Proof", font_size=26, color="#38bdf8")
+        header = VGroup(title, subtitle).arrange(DOWN, buff=0.14).to_edge(UP, buff=0.5)
+        header.set(width=min(header.width, 4.0))
 
         self.play(Write(title), FadeIn(subtitle, shift=UP * 0.2), run_time=2.0)
         self.wait(1.5)
 
-        # Step 1: Initial expression
-        eq1 = MathTex("x^2", "+", "bx", font_size=52, color=WHITE)
-        eq1.next_to(header, DOWN, buff=0.6)
+        # Step 1: Initial expression (Upper zone, well above shapes)
+        eq1 = MathTex("x^2", "+", "bx", font_size=44, color=WHITE)
+        eq1.next_to(header, DOWN, buff=0.35)
         self.play(Write(eq1), run_time=1.8)
         self.wait(1.5)
 
-        # Step 2: x^2 square + bx rectangle
-        sq_x = Square(side_length=2.2, color="#38bdf8", fill_color="#0284c7", fill_opacity=0.45)
-        lbl_x2 = MathTex("x^2", font_size=40, color=WHITE).move_to(sq_x.get_center())
-        lbl_x_left = MathTex("x", font_size=32, color="#94a3b8").next_to(sq_x, LEFT, buff=0.2)
-        lbl_x_top = MathTex("x", font_size=32, color="#94a3b8").next_to(sq_x, UP, buff=0.2)
+        # Step 2: x^2 square + bx rectangle (Middle zone, sized for 9:16)
+        sq_x = Square(side_length=1.6, color="#38bdf8", fill_color="#0284c7", fill_opacity=0.45)
+        lbl_x2 = MathTex("x^2", font_size=34, color=WHITE).move_to(sq_x.get_center())
+        lbl_x_left = MathTex("x", font_size=26, color="#94a3b8").next_to(sq_x, LEFT, buff=0.15)
+        lbl_x_top = MathTex("x", font_size=26, color="#94a3b8").next_to(sq_x, UP, buff=0.15)
         group_x2 = VGroup(sq_x, lbl_x2, lbl_x_left, lbl_x_top)
 
-        rect_bx = Rectangle(width=1.4, height=2.2, color="#34d399", fill_color="#059669", fill_opacity=0.45)
-        rect_bx.next_to(sq_x, RIGHT, buff=0.25)
-        lbl_bx = MathTex("bx", font_size=40, color=WHITE).move_to(rect_bx.get_center())
-        lbl_b_top = MathTex("b", font_size=32, color="#94a3b8").next_to(rect_bx, UP, buff=0.2)
+        rect_bx = Rectangle(width=1.1, height=1.6, color="#34d399", fill_color="#059669", fill_opacity=0.45)
+        rect_bx.next_to(sq_x, RIGHT, buff=0.2)
+        lbl_bx = MathTex("bx", font_size=34, color=WHITE).move_to(rect_bx.get_center())
+        lbl_b_top = MathTex("b", font_size=26, color="#94a3b8").next_to(rect_bx, UP, buff=0.15)
         group_bx = VGroup(rect_bx, lbl_bx, lbl_b_top)
 
-        shapes_step1 = VGroup(group_x2, group_bx).move_to(ORIGIN).shift(DOWN * 0.3)
+        shapes_step1 = VGroup(group_x2, group_bx).move_to(ORIGIN).shift(DOWN * 0.15)
 
         self.play(Create(sq_x), Write(lbl_x2), FadeIn(lbl_x_left), FadeIn(lbl_x_top), run_time=2.2)
         self.wait(1.2)
@@ -69,16 +70,16 @@ class CompletingTheSquareScene(Scene):
         self.wait(2.0)
 
         # Step 3: Split bx into two (b/2)x rectangles
-        half_w = 0.7
-        rect_r = Rectangle(width=half_w, height=2.2, color="#34d399", fill_color="#059669", fill_opacity=0.45)
+        half_w = 0.55
+        rect_r = Rectangle(width=half_w, height=1.6, color="#34d399", fill_color="#059669", fill_opacity=0.45)
         rect_r.next_to(sq_x, RIGHT, buff=0.05)
-        lbl_r = MathTex(r"\\frac{b}{2}x", font_size=28, color=WHITE).move_to(rect_r.get_center())
-        lbl_r_top = MathTex(r"\\frac{b}{2}", font_size=26, color="#94a3b8").next_to(rect_r, UP, buff=0.2)
+        lbl_r = MathTex(r"\\frac{b}{2}x", font_size=22, color=WHITE).move_to(rect_r.get_center())
+        lbl_r_top = MathTex(r"\\frac{b}{2}", font_size=22, color="#94a3b8").next_to(rect_r, UP, buff=0.15)
 
-        rect_b = Rectangle(width=2.2, height=half_w, color="#34d399", fill_color="#059669", fill_opacity=0.45)
+        rect_b = Rectangle(width=1.6, height=half_w, color="#34d399", fill_color="#059669", fill_opacity=0.45)
         rect_b.next_to(sq_x, DOWN, buff=0.05)
-        lbl_b = MathTex(r"\\frac{b}{2}x", font_size=28, color=WHITE).move_to(rect_b.get_center())
-        lbl_b_left = MathTex(r"\\frac{b}{2}", font_size=26, color="#94a3b8").next_to(rect_b, LEFT, buff=0.2)
+        lbl_b = MathTex(r"\\frac{b}{2}x", font_size=22, color=WHITE).move_to(rect_b.get_center())
+        lbl_b_left = MathTex(r"\\frac{b}{2}", font_size=22, color="#94a3b8").next_to(rect_b, LEFT, buff=0.15)
 
         self.play(
             FadeOut(group_bx),
@@ -95,17 +96,19 @@ class CompletingTheSquareScene(Scene):
         # Step 4: Missing corner (b/2)^2
         corner = Square(side_length=half_w, color="#fbbf24", fill_color="#d97706", fill_opacity=0.55)
         corner.next_to(rect_r, DOWN, buff=0.05)
-        lbl_corner = MathTex(r"\\left(\\frac{b}{2}\\right)^2", font_size=20, color=WHITE).move_to(corner.get_center())
+        lbl_corner = MathTex(r"\\left(\\frac{b}{2}\\right)^2", font_size=16, color=WHITE).move_to(corner.get_center())
 
         self.play(Create(corner), Write(lbl_corner), run_time=2.2)
         self.wait(2.5)
 
-        # Step 5: Final equation
+        # Step 5: Final equation (Bottom zone, auto-fitted to 9:16 width)
         eq_final = MathTex(
             r"x^2 + bx = \\left(x + \\frac{b}{2}\\right)^2 - \\left(\\frac{b}{2}\\right)^2",
-            font_size=36,
+            font_size=34,
             color="#fbbf24",
-        ).to_edge(DOWN, buff=1.1)
+        ).to_edge(DOWN, buff=0.75)
+        if eq_final.width > 4.0:
+            eq_final.set(width=4.0)
 
         self.play(ReplacementTransform(eq1, eq_final), run_time=2.5)
         self.wait(4.0)
