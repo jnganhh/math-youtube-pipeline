@@ -1,11 +1,8 @@
 """
 mpm2d_topics.py
 Curriculum-aligned MPM2D (Ontario Grade 10 Academic Math) Quadratic Topics.
-Each topic includes a ~2:30 (150s) structured lesson:
-1. Hook & Core Idea
-2. Worked Example (step-by-step)
-3. Practice Problem ("Try It Yourself") + Solution
-4. Key Takeaway
+Each topic uses segmented narration for 100% frame-accurate audio-video sync
+and a dedicated visual mode ('graph', 'area', or 'algebra') in a clean white/light theme.
 """
 
 from datetime import datetime, timezone
@@ -15,612 +12,921 @@ TOPICS: List[Dict[str, Any]] = [
     {
         "id": "factoring_common_factor",
         "title": "Factoring by Common Factor",
-        "rule": r"\text{GCF}(a, b) \cdot \left(\frac{a}{\text{GCF}} + \frac{b}{\text{GCF}}\right)",
-        "voiceover": (
-            "Welcome to Grade 10 Academic Math, M P M 2 D! Today we are mastering factoring by common factor. "
-            "Whenever you factor any quadratic or polynomial expression, your very first step should always be checking for a greatest common factor, or G C F. "
-            "Let's look at our first worked example: 6 x squared plus 9 x. "
-            "First, look at the coefficients 6 and 9. The largest number that divides evenly into both 6 and 9 is 3. "
-            "Next, look at the variable parts: x squared and x. Both terms contain at least one x, so the variable part of our G C F is x. "
-            "Putting them together, our greatest common factor is 3 x. "
-            "Now, write 3 x in front of a set of brackets, and divide each original term by 3 x. "
-            "6 x squared divided by 3 x gives 2 x. And 9 x divided by 3 x gives 3. "
-            "So our factored expression is 3 x times 2 x plus 3. You can always check your answer by expanding: 3 x times 2 x is 6 x squared, and 3 x times 3 is 9 x! "
-            "Now, let's try a practice problem together. Pause and think about how to factor 10 x squared minus 15 x. "
-            "First, find the greatest common factor of 10 and 15, which is 5. Both terms also share an x, so the G C F is 5 x. "
-            "Divide each term by 5 x: 10 x squared divided by 5 x is 2 x, and negative 15 x divided by 5 x is negative 3. "
-            "So the final factored form is 5 x times 2 x minus 3. "
-            "Remember: always pull out the G C F first—it makes every other factoring method much easier!"
-        ),
-        "steps": [
-            ("Example 1", r"6x^2 + 9x", "#0f172a"),
-            ("Find GCF", r"\text{GCF}(6x^2, 9x) = 3x", "#2563eb"),
-            ("Divide Each Term", r"3x\left(\frac{6x^2}{3x} + \frac{9x}{3x}\right)", "#059669"),
-            ("Factored Form", r"3x(2x + 3)", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"10x^2 - 15x", "#0f172a"),
-            ("GCF = 5x", r"5x\left(\frac{10x^2}{5x} - \frac{15x}{5x}\right)", "#2563eb"),
-            ("Answer", r"5x(2x - 3)", "#059669"),
+        "subtitle": "MPM2D • Always Check GCF First",
+        "visual": "algebra",
+        "rule": r"\text{GCF}(a, b)\left(\frac{a}{\text{GCF}} + \frac{b}{\text{GCF}}\right)",
+        "segments": [
+            {
+                "narration": "Welcome to M P M 2 D! Before using any fancy factoring trick, always check for a greatest common factor first.",
+                "label": "Golden Rule",
+                "tex": r"\text{Always factor out the GCF first!}",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Let's factor 6 x squared plus 9 x. Look at the numbers 6 and 9: the largest number that divides both is 3.",
+                "label": "Example 1",
+                "tex": r"6x^2 + 9x",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Both terms also share an x, so our greatest common factor is 3 x.",
+                "label": "Find GCF",
+                "tex": r"\text{GCF}(6x^2, 9x) = 3x",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Write 3 x in front, and divide each term by 3 x. 6 x squared divided by 3 x is 2 x, and 9 x divided by 3 x is 3.",
+                "label": "Divide Each Term",
+                "tex": r"3x\left(\frac{6x^2}{3x} + \frac{9x}{3x}\right) = 3x(2x + 3)",
+                "color": "#059669",
+            },
+            {
+                "narration": "Now try one yourself: factor 10 x squared minus 15 x. Pause and find the G C F.",
+                "label": "Try It Yourself",
+                "tex": r"10x^2 - 15x",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "The G C F of 10 x squared and 15 x is 5 x. Dividing both terms gives 5 x times 2 x minus 3!",
+                "label": "Solution",
+                "tex": r"5x(2x - 3)",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "factoring_grouping",
         "title": "Factoring by Grouping",
+        "subtitle": "MPM2D • Four-Term Expressions",
+        "visual": "algebra",
         "rule": r"a(x + y) + b(x + y) = (x + y)(a + b)",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are learning how to factor by grouping. "
-            "You use factoring by grouping whenever an expression has four terms and no single common factor across all four. "
-            "Let's work through an example: x cubed plus 3 x squared plus 2 x plus 6. "
-            "Step one: group the first two terms together, and group the last two terms together. "
-            "Step two: factor out the greatest common factor from each pair separately. "
-            "From x cubed plus 3 x squared, we can factor out x squared, leaving x plus 3 inside the brackets. "
-            "From 2 x plus 6, we can factor out positive 2, also leaving x plus 3 inside the brackets. "
-            "Notice that both groups now share the exact same binomial factor: x plus 3! "
-            "Step three: factor out that common binomial x plus 3, and put the remaining pieces x squared plus 2 into the second bracket. "
-            "So our final answer is x plus 3 times x squared plus 2. "
-            "Now let's try a practice problem: factor x cubed minus 4 x squared plus 5 x minus 20. "
-            "Group the first two terms and factor out x squared to get x squared times x minus 4. "
-            "Group the last two terms and factor out positive 5 to get 5 times x minus 4. "
-            "Factor out the common binomial x minus 4, giving x minus 4 times x squared plus 5. "
-            "Whenever you see four terms, pair them up and look for that matching bracket!"
-        ),
-        "steps": [
-            ("Example 1", r"x^3 + 3x^2 + 2x + 6", "#0f172a"),
-            ("Group in Pairs", r"(x^3 + 3x^2) + (2x + 6)", "#2563eb"),
-            ("Factor Each Pair", r"x^2(x + 3) + 2(x + 3)", "#059669"),
-            ("Factored Form", r"(x + 3)(x^2 + 2)", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"x^3 - 4x^2 + 5x - 20", "#0f172a"),
-            ("Factor Pairs", r"x^2(x - 4) + 5(x - 4)", "#2563eb"),
-            ("Answer", r"(x - 4)(x^2 + 5)", "#059669"),
+        "segments": [
+            {
+                "narration": "When you see four terms with no single common factor, use factoring by grouping!",
+                "label": "When to Use",
+                "tex": r"4\text{ terms} \implies \text{Group in pairs}",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Let's factor x cubed plus 3 x squared plus 2 x plus 6. Pair the first two terms and the last two terms.",
+                "label": "Group Pairs",
+                "tex": r"(x^3 + 3x^2) + (2x + 6)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Factor x squared from the first pair to get x plus 3, and factor 2 from the second pair to also get x plus 3.",
+                "label": "Factor Each Pair",
+                "tex": r"x^2(x + 3) + 2(x + 3)",
+                "color": "#059669",
+            },
+            {
+                "narration": "Notice the matching bracket x plus 3! Factor it out to get x plus 3 times x squared plus 2.",
+                "label": "Factored Form",
+                "tex": r"(x + 3)(x^2 + 2)",
+                "color": "#d97706",
+            },
+            {
+                "narration": "Try this one: factor x cubed minus 4 x squared plus 5 x minus 20.",
+                "label": "Try It Yourself",
+                "tex": r"x^3 - 4x^2 + 5x - 20",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Pull x squared from the first pair and 5 from the second pair to get x minus 4 times x squared plus 5!",
+                "label": "Solution",
+                "tex": r"(x - 4)(x^2 + 5)",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "factoring_sum_product",
         "title": "Factoring Simple Trinomials",
+        "subtitle": "MPM2D • Sum & Product",
+        "visual": "area",
+        "area_labels": ["x", "+3", "x", "+4", "x^2", "4x", "3x", "12"],
         "rule": r"x^2 + (p+q)x + pq = (x + p)(x + q)",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are factoring simple trinomials using the sum and product method. "
-            "A simple trinomial has the form x squared plus b x plus c, where the coefficient in front of x squared is 1. "
-            "Let's factor x squared plus 7 x plus 12. "
-            "To factor this, we need two integers that multiply to give c, which is 12, and add to give b, which is 7. "
-            "Let's list factor pairs of 12: 1 times 12 adds to 13. 2 times 6 adds to 8. 3 times 4 is 12, and 3 plus 4 equals 7! "
-            "That's our pair: 3 and 4. "
-            "Because the leading coefficient is 1, we can write the factored form directly as x plus 3 times x plus 4. "
-            "Always do a quick mental check: x times x is x squared, 3 x plus 4 x is 7 x, and 3 times 4 is 12. "
-            "Now let's try a practice problem with negatives: factor x squared minus 2 x minus 15. "
-            "We need two numbers that multiply to negative 15 and add to negative 2. "
-            "Since the product is negative, one number is positive and one is negative. "
-            "Negative 5 times 3 is negative 15, and negative 5 plus 3 is negative 2. "
-            "So the factored form is x minus 5 times x plus 3. "
-            "Master sum and product—it's the foundation for solving quadratics!"
-        ),
-        "steps": [
-            ("Example 1", r"x^2 + 7x + 12", "#0f172a"),
-            ("Product = 12, Sum = 7", r"3 \times 4 = 12,\quad 3 + 4 = 7", "#2563eb"),
-            ("Factored Form", r"(x + 3)(x + 4)", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"x^2 - 2x - 15", "#0f172a"),
-            ("Product = -15, Sum = -2", r"(-5)(3) = -15,\; -5 + 3 = -2", "#2563eb"),
-            ("Answer", r"(x - 5)(x + 3)", "#059669"),
+        "segments": [
+            {
+                "narration": "To factor a simple trinomial like x squared plus 7 x plus 12, look at the area model of a rectangle!",
+                "label": "Example 1",
+                "tex": r"x^2 + 7x + 12",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "We need two numbers that multiply to 12 and add to 7. 3 times 4 is 12, and 3 plus 4 is 7.",
+                "label": "Product = 12, Sum = 7",
+                "tex": r"3 \times 4 = 12,\quad 3 + 4 = 7",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "On our area grid, x squared, 3 x, 4 x, and 12 form a rectangle with sides x plus 3 and x plus 4.",
+                "label": "Factored Form",
+                "tex": r"(x + 3)(x + 4)",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one with negatives: factor x squared minus 2 x minus 15.",
+                "label": "Try It Yourself",
+                "tex": r"x^2 - 2x - 15",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Negative 5 times 3 is negative 15, and negative 5 plus 3 is negative 2. So we get x minus 5 times x plus 3!",
+                "label": "Solution",
+                "tex": r"(x - 5)(x + 3)",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "factoring_decomposition",
         "title": "Factoring by Decomposition",
+        "subtitle": "MPM2D • Complex Trinomials (a ≠ 1)",
+        "visual": "area",
+        "area_labels": ["2x", "+1", "x", "+3", "2x^2", "6x", "1x", "3"],
         "rule": r"ax^2 + bx + c \rightarrow \text{split } bx \text{ using } ac",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are tackling complex trinomials using factoring by decomposition. "
-            "Use decomposition when the coefficient a in front of x squared is not 1 and cannot be factored out as a G C F. "
-            "Let's factor 2 x squared plus 7 x plus 3. "
-            "Step one: multiply a times c. Here, 2 times 3 equals 6. "
-            "Step two: find two numbers that multiply to 6 and add to b, which is 7. Those numbers are 6 and 1. "
-            "Step three: decompose the middle term 7 x into 6 x plus 1 x. Now we have four terms: 2 x squared plus 6 x plus 1 x plus 3. "
-            "Step four: factor by grouping! Factor 2 x from the first pair to get 2 x times x plus 3, and factor 1 from the second pair to get 1 times x plus 3. "
-            "Factor out the common bracket x plus 3, giving 2 x plus 1 times x plus 3. "
-            "Now let's try a practice problem: factor 3 x squared plus 10 x plus 8. "
-            "Multiply a times c: 3 times 8 is 24. Two numbers that multiply to 24 and add to 10 are 6 and 4. "
-            "Split 10 x into 6 x plus 4 x, group into 3 x times x plus 2 plus 4 times x plus 2, and we get 3 x plus 4 times x plus 2!"
-        ),
-        "steps": [
-            ("Example 1", r"2x^2 + 7x + 3", "#0f172a"),
-            ("ac = 6, Sum = 7", r"6 \times 1 = 6,\quad 6 + 1 = 7", "#2563eb"),
-            ("Decompose bx", r"2x^2 + 6x + 1x + 3", "#059669"),
-            ("Group & Factor", r"(2x + 1)(x + 3)", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"3x^2 + 10x + 8", "#0f172a"),
-            ("ac = 24, Split 6x + 4x", r"3x(x + 2) + 4(x + 2)", "#2563eb"),
-            ("Answer", r"(3x + 4)(x + 2)", "#059669"),
+        "segments": [
+            {
+                "narration": "When a is not 1, like 2 x squared plus 7 x plus 3, use decomposition and the area model!",
+                "label": "Example 1",
+                "tex": r"2x^2 + 7x + 3",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Multiply a times c: 2 times 3 equals 6. Find two numbers that multiply to 6 and add to 7: 6 and 1.",
+                "label": "ac = 6, Sum = 7",
+                "tex": r"6 \times 1 = 6,\quad 6 + 1 = 7",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Split 7 x into 6 x and 1 x in our area boxes, then factor out the greatest common factor of each row and column.",
+                "label": "Decompose & Group",
+                "tex": r"2x(x + 3) + 1(x + 3)",
+                "color": "#059669",
+            },
+            {
+                "narration": "The sides of the rectangle give us 2 x plus 1 times x plus 3!",
+                "label": "Factored Form",
+                "tex": r"(2x + 1)(x + 3)",
+                "color": "#d97706",
+            },
+            {
+                "narration": "Try one yourself: factor 3 x squared plus 10 x plus 8. Remember: a times c is 24.",
+                "label": "Try It Yourself",
+                "tex": r"3x^2 + 10x + 8",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "6 and 4 multiply to 24 and add to 10. Factoring by grouping gives 3 x plus 4 times x plus 2!",
+                "label": "Solution",
+                "tex": r"(3x + 4)(x + 2)",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "factoring_special_product",
         "title": "Factoring Special Products",
+        "subtitle": "MPM2D • Difference of Squares",
+        "visual": "area",
+        "area_labels": ["3x", "+4", "3x", "-4", "9x^2", "-12x", "+12x", "-16"],
         "rule": r"a^2 - b^2 = (a + b)(a - b)",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are factoring special products, focusing on difference of squares and perfect square trinomials. "
-            "First, a difference of squares has two perfect square terms separated by a minus sign: a squared minus b squared. "
-            "It always factors into a plus b times a minus b. "
-            "Let's factor 9 x squared minus 16. "
-            "Notice that 9 x squared is 3 x all squared, and 16 is 4 squared. "
-            "Using the pattern, a is 3 x and b is 4, so it factors immediately into 3 x plus 4 times 3 x minus 4. "
-            "Notice there is no middle x term because positive 12 x and negative 12 x cancel out! "
-            "Be careful: a sum of squares like x squared plus 16 cannot be factored over the real numbers. "
-            "Now let's try a practice problem: factor 25 x squared minus 49. "
-            "25 x squared is 5 x all squared, and 49 is 7 squared. "
-            "Apply the difference of squares rule: 5 x plus 7 times 5 x minus 7. "
-            "Always scan for perfect squares—it saves huge amounts of time on tests!"
-        ),
-        "steps": [
-            ("Example 1", r"9x^2 - 16", "#0f172a"),
-            ("Rewrite as Squares", r"(3x)^2 - (4)^2", "#2563eb"),
-            ("Factored Form", r"(3x + 4)(3x - 4)", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"25x^2 - 49", "#0f172a"),
-            ("Identify a = 5x, b = 7", r"(5x)^2 - (7)^2", "#2563eb"),
-            ("Answer", r"(5x + 7)(5x - 7)", "#059669"),
+        "segments": [
+            {
+                "narration": "Spot a difference of squares: two perfect squares separated by a minus sign, like 9 x squared minus 16.",
+                "label": "Example 1",
+                "tex": r"9x^2 - 16",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "9 x squared is 3 x all squared, and 16 is 4 squared. Notice in the area model, plus 12 x and minus 12 x cancel out!",
+                "label": "Rewrite as Squares",
+                "tex": r"(3x)^2 - (4)^2",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "So it factors cleanly into 3 x plus 4 times 3 x minus 4.",
+                "label": "Factored Form",
+                "tex": r"(3x + 4)(3x - 4)",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try this one: factor 25 x squared minus 49.",
+                "label": "Try It Yourself",
+                "tex": r"25x^2 - 49",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "5 x squared minus 7 squared factors into 5 x plus 7 times 5 x minus 7!",
+                "label": "Solution",
+                "tex": r"(5x + 7)(5x - 7)",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "solve_qe_factoring",
         "title": "Solve Quadratics by Factoring",
+        "subtitle": "MPM2D • Zero Product Property",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-4, 6, 1],
+            "y_range": [-6, 8, 2],
+            "curves": [{"a": 1, "h": 2.5, "k": -0.25, "color": "#2563eb", "label": "y = x^2 - 5x + 6"}],
+            "dots": [[2, 0, "#059669", "(2, 0)"], [3, 0, "#059669", "(3, 0)"]],
+        },
         "rule": r"AB = 0 \implies A = 0 \text{ or } B = 0",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are solving quadratic equations by factoring. "
-            "The key idea is the Zero Product Property: if two factors multiply to zero, at least one of them must be zero. "
-            "Let's solve x squared minus 5 x plus 6 equals 0. "
-            "Step one: make sure the equation is set equal to zero. Here it already is. "
-            "Step two: factor the left side using sum and product. We need two numbers that multiply to 6 and add to negative 5: negative 2 and negative 3. "
-            "So we have x minus 2 times x minus 3 equals 0. "
-            "Step three: set each factor equal to zero and solve. x minus 2 equals 0 gives x equals 2. x minus 3 equals 0 gives x equals 3. "
-            "These two solutions, 2 and 3, are also the x-intercepts of the parabola! "
-            "Now let's try a practice problem: solve x squared plus 3 x minus 10 equals 0. "
-            "Factor using sum and product: 5 times negative 2 is negative 10, and 5 plus negative 2 is 3. "
-            "So x plus 5 times x minus 2 equals 0. "
-            "Setting each bracket to zero gives x equals negative 5 and x equals 2!"
-        ),
-        "steps": [
-            ("Example 1", r"x^2 - 5x + 6 = 0", "#0f172a"),
-            ("Factor", r"(x - 2)(x - 3) = 0", "#2563eb"),
-            ("Zero Product Property", r"x - 2 = 0 \;\text{ or }\; x - 3 = 0", "#059669"),
-            ("Solutions", r"x = 2,\quad x = 3", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"x^2 + 3x - 10 = 0", "#0f172a"),
-            ("Factor", r"(x + 5)(x - 2) = 0", "#2563eb"),
-            ("Answer", r"x = -5,\quad x = 2", "#059669"),
+        "segments": [
+            {
+                "narration": "Solving a quadratic equation means finding where the parabola crosses the x-axis, where y equals 0.",
+                "label": "Equation",
+                "tex": r"x^2 - 5x + 6 = 0",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "First, factor the left side: negative 2 and negative 3 multiply to 6 and add to negative 5.",
+                "label": "Factor",
+                "tex": r"(x - 2)(x - 3) = 0",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "By the Zero Product Property, set each bracket to 0. That gives x equals 2 and x equals 3—right at the two green dots on the graph!",
+                "label": "x-Intercepts / Roots",
+                "tex": r"x = 2,\quad x = 3",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one yourself: solve x squared plus 3 x minus 10 equals 0.",
+                "label": "Try It Yourself",
+                "tex": r"x^2 + 3x - 10 = 0",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "It factors into x plus 5 times x minus 2 equals 0, giving x equals negative 5 and x equals 2!",
+                "label": "Solution",
+                "tex": r"x = -5,\quad x = 2",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "solve_qe_isolation",
         "title": "Solve Quadratics by Isolation",
+        "subtitle": "MPM2D • Don't Forget ±",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-5, 5, 1],
+            "y_range": [-10, 8, 2],
+            "curves": [{"a": 1, "h": 0, "k": -9, "color": "#2563eb", "label": "y = x^2 - 9"}],
+            "dots": [[-3, 0, "#059669", "(-3, 0)"], [3, 0, "#059669", "(3, 0)"]],
+        },
         "rule": r"x^2 = k \implies x = \pm\sqrt{k}",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are solving quadratic equations by isolation. "
-            "When a quadratic equation has no b x term, or is already in vertex form, isolating the squared term is the fastest way to solve it. "
-            "Let's solve 2 x squared minus 18 equals 0. "
-            "Step one: add 18 to both sides to get 2 x squared equals 18. "
-            "Step two: divide both sides by 2 to isolate x squared, giving x squared equals 9. "
-            "Step three: take the square root of both sides. Remember the most common mistake students make: forgetting the plus or minus sign! "
-            "Both 3 squared and negative 3 squared equal 9, so x equals plus or minus 3. "
-            "Now let's try a practice problem in vertex form: solve x minus 1 all squared minus 16 equals 0. "
-            "Add 16 to both sides: x minus 1 squared equals 16. "
-            "Take the square root: x minus 1 equals plus or minus 4. "
-            "Add 1 to both sides: x equals 1 plus 4, which is 5, or 1 minus 4, which is negative 3!"
-        ),
-        "steps": [
-            ("Example 1", r"2x^2 - 18 = 0", "#0f172a"),
-            ("Isolate x^2", r"2x^2 = 18 \implies x^2 = 9", "#2563eb"),
-            ("Square Root", r"x = \pm\sqrt{9}", "#059669"),
-            ("Solutions", r"x = 3,\quad x = -3", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"(x - 1)^2 - 16 = 0", "#0f172a"),
-            ("Take Square Root", r"x - 1 = \pm 4", "#2563eb"),
-            ("Answer", r"x = 5,\quad x = -3", "#059669"),
+        "segments": [
+            {
+                "narration": "When a quadratic has no b x term, solve it by isolating x squared!",
+                "label": "Equation",
+                "tex": r"2x^2 - 18 = 0",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Add 18 to both sides and divide by 2 to get x squared equals 9.",
+                "label": "Isolate x²",
+                "tex": r"2x^2 = 18 \implies x^2 = 9",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Take the square root of both sides—and don't forget plus or minus! The parabola crosses at both negative 3 and positive 3.",
+                "label": "Two Symmetric Roots",
+                "tex": r"x = \pm\sqrt{9} \implies x = 3, -3",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try this vertex-form equation: solve x minus 1 squared minus 16 equals 0.",
+                "label": "Try It Yourself",
+                "tex": r"(x - 1)^2 - 16 = 0",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "x minus 1 equals plus or minus 4, so adding 1 gives x equals 5 and x equals negative 3!",
+                "label": "Solution",
+                "tex": r"x = 5,\quad x = -3",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "solve_qe_quadratic_formula",
         "title": "Solve Using Quadratic Formula",
+        "subtitle": "MPM2D • Works for Every Quadratic",
+        "visual": "algebra",
         "rule": r"x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are using the quadratic formula, the universal tool that solves every quadratic equation—even when it cannot be factored. "
-            "For any equation in standard form a x squared plus b x plus c equals 0, the solutions are x equals negative b plus or minus the square root of b squared minus 4 a c, all divided by 2 a. "
-            "Let's solve x squared plus 4 x plus 1 equals 0. "
-            "Here, a equals 1, b equals 4, and c equals 1. "
-            "Substitute carefully into the formula: x equals negative 4 plus or minus the square root of 4 squared minus 4 times 1 times 1, all over 2 times 1. "
-            "Inside the square root, 16 minus 4 is 12. "
-            "Since root 12 simplifies to 2 root 3, dividing both terms in the numerator by 2 gives x equals negative 2 plus or minus root 3. "
-            "Now let's try a practice problem: solve 2 x squared minus 3 x minus 2 equals 0. "
-            "With a equals 2, b equals negative 3, and c equals negative 2, the formula gives 3 plus or minus the square root of 9 plus 16, all over 4. "
-            "Root 25 is 5, so x equals 3 plus 5 over 4, which is 2, or 3 minus 5 over 4, which is negative 0.5!"
-        ),
-        "steps": [
-            ("Example 1", r"x^2 + 4x + 1 = 0", "#0f172a"),
-            ("Quadratic Formula", r"x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}", "#2563eb"),
-            ("Substitute", r"x = \frac{-4 \pm \sqrt{16 - 4}}{2}", "#059669"),
-            ("Exact Roots", r"x = -2 \pm \sqrt{3}", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"2x^2 - 3x - 2 = 0", "#0f172a"),
-            ("Discriminant = 25", r"x = \frac{3 \pm \sqrt{25}}{4}", "#2563eb"),
-            ("Answer", r"x = 2,\quad x = -\frac{1}{2}", "#059669"),
+        "segments": [
+            {
+                "narration": "When a quadratic won't factor with integers, the quadratic formula solves it every single time.",
+                "label": "Standard Form",
+                "tex": r"ax^2 + bx + c = 0",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Let's solve x squared plus 4 x plus 1 equals 0. Here a is 1, b is 4, and c is 1.",
+                "label": "Identify a, b, c",
+                "tex": r"a = 1,\quad b = 4,\quad c = 1",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Plug them into negative b plus or minus the square root of b squared minus 4 a c, all over 2 a.",
+                "label": "Substitute",
+                "tex": r"x = \frac{-4 \pm \sqrt{4^2 - 4(1)(1)}}{2(1)}",
+                "color": "#059669",
+            },
+            {
+                "narration": "16 minus 4 is 12, and root 12 simplifies to 2 root 3. Dividing by 2 gives negative 2 plus or minus root 3.",
+                "label": "Exact Roots",
+                "tex": r"x = -2 \pm \sqrt{3}",
+                "color": "#d97706",
+            },
+            {
+                "narration": "Try one yourself: solve 2 x squared minus 3 x minus 2 equals 0.",
+                "label": "Try It Yourself",
+                "tex": r"2x^2 - 3x - 2 = 0",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "The discriminant is 9 plus 16 equals 25, whose square root is 5. That gives x equals 2 and x equals negative 0.5!",
+                "label": "Solution",
+                "tex": r"x = 2,\quad x = -\frac{1}{2}",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "transformations_quadratic",
         "title": "Transformations of Quadratics",
+        "subtitle": "MPM2D • Parent Parabola y = x²",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-6, 6, 1],
+            "y_range": [-8, 8, 2],
+            "curves": [
+                {"a": 1, "h": 0, "k": 0, "color": "#94a3b8", "label": "y = x^2"},
+                {"a": -2, "h": 2, "k": 5, "color": "#2563eb", "label": "y = -2(x-2)^2 + 5"},
+            ],
+            "dots": [[0, 0, "#94a3b8", "(0,0)"], [2, 5, "#d97706", "V(2,5)"]],
+        },
         "rule": r"y = a(x - h)^2 + k",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are describing transformations of quadratic functions from the parent parabola y equals x squared. "
-            "In vertex form y equals a times x minus h squared plus k, each parameter controls a specific geometric transformation. "
-            "First, a controls vertical stretch, compression, and reflection. If a is negative, the parabola reflects across the x-axis and opens downward. "
-            "If the absolute value of a is greater than 1, it stretches vertically; if it's between 0 and 1, it compresses vertically. "
-            "Second, h controls the horizontal translation. Because of the minus sign in x minus h, it shifts right when h is positive and left when h is negative—always watch the opposite sign! "
-            "Third, k controls the vertical translation: up if k is positive, down if k is negative. "
-            "Let's practice with y equals negative 2 times x plus 3 squared minus 5. "
-            "Negative 2 means a reflection in the x-axis and a vertical stretch by a factor of 2. "
-            "x plus 3 means a shift 3 units left, and minus 5 means a shift 5 units down!"
-        ),
-        "steps": [
-            ("Vertex Form", r"y = a(x - h)^2 + k", "#0f172a"),
-            ("a: Reflection / Stretch", r"a < 0 \implies \text{opens down}", "#2563eb"),
-            ("h: Horizontal Shift", r"(x - h) \implies \text{right } h", "#059669"),
-            ("k: Vertical Shift", r"+ k \implies \text{up } k", "#d97706"),
-        ],
-        "practice": [
-            ("Describe", r"y = -2(x + 3)^2 - 5", "#0f172a"),
-            ("a = -2, h = -3, k = -5", r"\text{Reflect, stretch 2}", "#2563eb"),
-            ("Translations", r"\text{Left 3, Down 5}", "#059669"),
+        "segments": [
+            {
+                "narration": "Look at the grey parent parabola y equals x squared. Every transformation in vertex form moves or stretches it!",
+                "label": "Parent Function",
+                "tex": r"y = x^2 \rightarrow y = a(x - h)^2 + k",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "a controls vertical stretch and reflection. When a is negative 2, the blue parabola flips upside down and stretches twice as narrow.",
+                "label": "a = -2 (Flip & Stretch)",
+                "tex": r"a < 0 \implies \text{opens down}",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "h shifts left or right—watch the opposite sign! x minus 2 shifts 2 units right, and plus 5 shifts 5 units up to the new vertex 2, 5.",
+                "label": "h = 2, k = 5",
+                "tex": r"\text{Right } 2,\; \text{Up } 5 \implies V(2, 5)",
+                "color": "#059669",
+            },
+            {
+                "narration": "Your turn: describe the transformations for y equals 0.5 times x plus 3 squared minus 4.",
+                "label": "Try It Yourself",
+                "tex": r"y = 0.5(x + 3)^2 - 4",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Vertical compression by 0.5, shift 3 units left, and shift 4 units down!",
+                "label": "Solution",
+                "tex": r"\text{Compress } 0.5,\; \text{Left } 3,\; \text{Down } 4",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "axis_symmetry_factored",
         "title": "Axis of Symmetry: Factored Form",
+        "subtitle": "MPM2D • Midpoint of Zeros",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-2, 9, 1],
+            "y_range": [-10, 6, 2],
+            "curves": [{"a": 1, "h": 4, "k": -9, "color": "#2563eb", "label": "y = (x-1)(x-7)"}],
+            "dots": [[1, 0, "#059669", "r=1"], [7, 0, "#059669", "s=7"], [4, -9, "#d97706", "x=4"]],
+            "aos": 4,
+        },
         "rule": r"y = a(x - r)(x - s) \implies x = \frac{r + s}{2}",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are finding the axis of symmetry of a quadratic in factored form. "
-            "Factored form is y equals a times x minus r times x minus s, where r and s are the x-intercepts, or zeros, of the parabola. "
-            "Because every parabola is perfectly symmetric, its axis of symmetry must lie exactly halfway between its two x-intercepts! "
-            "That means we just take the average of r and s: x equals r plus s divided by 2. "
-            "Let's try an example: y equals 2 times x minus 1 times x minus 7. "
-            "First, read off the x-intercepts by flipping the signs: r equals 1 and s equals 7. "
-            "Now find their midpoint: 1 plus 7 divided by 2 equals 8 over 2, which is 4. "
-            "So the axis of symmetry is x equals 4. "
-            "Let's do a practice problem: y equals negative 3 times x plus 5 times x minus 1. "
-            "The x-intercepts are negative 5 and positive 1. "
-            "Average them: negative 5 plus 1 is negative 4, divided by 2 is negative 2. "
-            "So the axis of symmetry is x equals negative 2!"
-        ),
-        "steps": [
-            ("Factored Form", r"y = 2(x - 1)(x - 7)", "#0f172a"),
-            ("x-Intercepts", r"r = 1,\quad s = 7", "#2563eb"),
-            ("Midpoint Formula", r"x = \frac{1 + 7}{2}", "#059669"),
-            ("Axis of Symmetry", r"x = 4", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"y = -3(x + 5)(x - 1)", "#0f172a"),
-            ("Zeros: -5 and 1", r"x = \frac{-5 + 1}{2}", "#2563eb"),
-            ("Answer", r"x = -2", "#059669"),
+        "segments": [
+            {
+                "narration": "In factored form, the parabola crosses the x-axis at r and s. Because it's symmetric, the axis of symmetry is right in the middle!",
+                "label": "Factored Form",
+                "tex": r"y = (x - 1)(x - 7)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Flip the signs to read the x-intercepts: r equals 1 and s equals 7, shown as green dots on the graph.",
+                "label": "x-Intercepts",
+                "tex": r"r = 1,\quad s = 7",
+                "color": "#059669",
+            },
+            {
+                "narration": "Average them: 1 plus 7 divided by 2 equals 4. That dashed red line at x equals 4 cuts the parabola in half!",
+                "label": "Axis of Symmetry",
+                "tex": r"x = \frac{1 + 7}{2} = 4",
+                "color": "#d97706",
+            },
+            {
+                "narration": "Try one: find the axis of symmetry for y equals negative 3 times x plus 5 times x minus 1.",
+                "label": "Try It Yourself",
+                "tex": r"y = -3(x + 5)(x - 1)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "The zeros are negative 5 and 1. Their average is negative 5 plus 1 over 2, which equals x equals negative 2!",
+                "label": "Solution",
+                "tex": r"x = \frac{-5 + 1}{2} = -2",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "axis_symmetry_vertex",
         "title": "Axis of Symmetry: Vertex Form",
+        "subtitle": "MPM2D • Straight Through the Vertex",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-1, 8, 1],
+            "y_range": [-2, 10, 2],
+            "curves": [{"a": 1, "h": 4, "k": 2, "color": "#2563eb", "label": "y = (x-4)^2 + 2"}],
+            "dots": [[4, 2, "#d97706", "V(4, 2)"]],
+            "aos": 4,
+        },
         "rule": r"y = a(x - h)^2 + k \implies x = h",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are finding the axis of symmetry from vertex form. "
-            "Vertex form is y equals a times x minus h squared plus k, where the vertex of the parabola is the point h, k. "
-            "Since the axis of symmetry is the vertical line that cuts the parabola in half right through its vertex, "
-            "its equation is simply x equals h! "
-            "Let's look at an example: y equals 3 times x minus 4 squared plus 2. "
-            "Remember to flip the sign inside the bracket: x minus 4 means h equals positive 4. "
-            "So the vertex is 4, 2, and the axis of symmetry is x equals 4. "
-            "Now let's try a practice problem: y equals negative 0.5 times x plus 6 squared minus 9. "
-            "Inside the bracket we have x plus 6, which is x minus negative 6, so h equals negative 6. "
-            "The vertex is negative 6, negative 9, and the axis of symmetry is x equals negative 6. "
-            "Always remember to write x equals as an equation, not just a single number!"
-        ),
-        "steps": [
-            ("Vertex Form", r"y = 3(x - 4)^2 + 2", "#0f172a"),
-            ("Identify Vertex", r"V(4, 2)", "#2563eb"),
-            ("Axis of Symmetry", r"x = 4", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"y = -0.5(x + 6)^2 - 9", "#0f172a"),
-            ("Vertex: (-6, -9)", r"h = -6", "#2563eb"),
-            ("Answer", r"x = -6", "#059669"),
+        "segments": [
+            {
+                "narration": "Finding the axis of symmetry from vertex form is the fastest of all—because the line passes straight through the vertex!",
+                "label": "Vertex Form",
+                "tex": r"y = (x - 4)^2 + 2",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Flip the sign inside the bracket: x minus 4 means h equals positive 4, so the vertex is 4, 2.",
+                "label": "Vertex",
+                "tex": r"V(4, 2)",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Therefore, the dashed axis of symmetry is simply x equals 4.",
+                "label": "Axis of Symmetry",
+                "tex": r"x = 4",
+                "color": "#d97706",
+            },
+            {
+                "narration": "Try this one: what is the axis of symmetry of y equals negative 0.5 times x plus 6 squared minus 9?",
+                "label": "Try It Yourself",
+                "tex": r"y = -0.5(x + 6)^2 - 9",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "x plus 6 means h is negative 6, so the axis of symmetry is x equals negative 6!",
+                "label": "Solution",
+                "tex": r"x = -6",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "axis_symmetry_standard",
         "title": "Axis of Symmetry: Standard Form",
+        "subtitle": "MPM2D • Use x = -b / 2a",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-2, 6, 1],
+            "y_range": [-5, 9, 2],
+            "curves": [{"a": 2, "h": 2, "k": -3, "color": "#2563eb", "label": "y = 2x^2 - 8x + 5"}],
+            "dots": [[2, -3, "#d97706", "V(2, -3)"]],
+            "aos": 2,
+        },
         "rule": r"y = ax^2 + bx + c \implies x = -\frac{b}{2a}",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are finding the axis of symmetry directly from standard form. "
-            "Standard form is y equals a x squared plus b x plus c. "
-            "You don't need to complete the square or factor just to find the axis of symmetry—you can use the formula x equals negative b over 2 a! "
-            "Let's try an example: y equals 2 x squared minus 8 x plus 5. "
-            "Here, a equals 2 and b equals negative 8. "
-            "Plug them into x equals negative b over 2 a: negative of negative 8 is positive 8, divided by 2 times 2 which is 4. "
-            "8 divided by 4 equals 2, so the axis of symmetry is x equals 2. "
-            "Now let's try a practice problem: y equals negative 3 x squared minus 12 x plus 7. "
-            "Here, a equals negative 3 and b equals negative 12. "
-            "Negative b is positive 12, and 2 a is negative 6. "
-            "12 divided by negative 6 gives x equals negative 2!"
-        ),
-        "steps": [
-            ("Standard Form", r"y = 2x^2 - 8x + 5", "#0f172a"),
-            ("Formula", r"x = -\frac{b}{2a}", "#2563eb"),
-            ("Substitute", r"x = -\frac{-8}{2(2)} = \frac{8}{4}", "#059669"),
-            ("Axis of Symmetry", r"x = 2", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"y = -3x^2 - 12x + 7", "#0f172a"),
-            ("a = -3, b = -12", r"x = -\frac{-12}{2(-3)}", "#2563eb"),
-            ("Answer", r"x = -2", "#059669"),
+        "segments": [
+            {
+                "narration": "In standard form, you don't need to factor or complete the square just to find the axis of symmetry.",
+                "label": "Standard Form",
+                "tex": r"y = 2x^2 - 8x + 5",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Just use x equals negative b over 2 a! Here a is 2 and b is negative 8.",
+                "label": "Substitute a, b",
+                "tex": r"x = -\frac{-8}{2(2)} = \frac{8}{4}",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "8 divided by 4 is 2, matching the dashed line through the vertex at x equals 2.",
+                "label": "Axis of Symmetry",
+                "tex": r"x = 2",
+                "color": "#d97706",
+            },
+            {
+                "narration": "Try one: find the axis of symmetry for y equals negative 3 x squared minus 12 x plus 7.",
+                "label": "Try It Yourself",
+                "tex": r"y = -3x^2 - 12x + 7",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Negative of negative 12 is 12, divided by 2 times negative 3 which is negative 6, giving x equals negative 2!",
+                "label": "Solution",
+                "tex": r"x = -2",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "expand_distributive",
         "title": "Expand by Distributive Property",
+        "subtitle": "MPM2D • Factored to Standard Form",
+        "visual": "algebra",
         "rule": r"(a + b)(c + d) = a(c + d) + b(c + d)",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are expanding binomials using the distributive property. "
-            "Expanding converts a quadratic from factored form into standard form. "
-            "Let's expand x plus 3 times x plus 5. "
-            "Using the distributive property, multiply each term in the first bracket by the entire second bracket: "
-            "x times x plus 5, plus 3 times x plus 5. "
-            "Distribute x: x times x is x squared, and x times 5 is 5 x. "
-            "Distribute 3: 3 times x is 3 x, and 3 times 5 is 15. "
-            "Finally, combine the like terms in the middle: 5 x plus 3 x equals 8 x. "
-            "So our expanded standard form is x squared plus 8 x plus 15. "
-            "Now let's try a practice problem with a leading coefficient: expand 2 x minus 1 times x plus 4. "
-            "Multiply 2 x by x plus 4 to get 2 x squared plus 8 x, then negative 1 by x plus 4 to get minus x minus 4. "
-            "Combine 8 x minus x to get 2 x squared plus 7 x minus 4!"
-        ),
-        "steps": [
-            ("Example 1", r"(x + 3)(x + 5)", "#0f172a"),
-            ("Distribute", r"x(x + 5) + 3(x + 5)", "#2563eb"),
-            ("Multiply", r"x^2 + 5x + 3x + 15", "#059669"),
-            ("Standard Form", r"x^2 + 8x + 15", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"(2x - 1)(x + 4)", "#0f172a"),
-            ("Multiply", r"2x^2 + 8x - x - 4", "#2563eb"),
-            ("Answer", r"2x^2 + 7x - 4", "#059669"),
+        "segments": [
+            {
+                "narration": "Expanding converts factored form into standard form using the distributive property.",
+                "label": "Factored Form",
+                "tex": r"(x + 3)(x + 5)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Multiply each term in the first bracket by the entire second bracket: x times x plus 5, plus 3 times x plus 5.",
+                "label": "Distribute",
+                "tex": r"x(x + 5) + 3(x + 5)",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Multiply out each part to get x squared plus 5 x plus 3 x plus 15, then combine the like terms in the middle.",
+                "label": "Standard Form",
+                "tex": r"x^2 + 8x + 15",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one yourself: expand 2 x minus 1 times x plus 4.",
+                "label": "Try It Yourself",
+                "tex": r"(2x - 1)(x + 4)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "2 x squared plus 8 x minus x minus 4 simplifies to 2 x squared plus 7 x minus 4!",
+                "label": "Solution",
+                "tex": r"2x^2 + 7x - 4",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "expand_area_model",
         "title": "Expand Using an Area Model",
+        "subtitle": "MPM2D • Visual Box Multiplication",
+        "visual": "area",
+        "area_labels": ["x", "+2", "x", "+4", "x^2", "4x", "2x", "8"],
         "rule": r"\text{Total Area} = \sum \text{Region Areas}",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are expanding binomials visually using an area model. "
-            "Think of multiplying two binomials as finding the total area of a rectangle split into four smaller boxes. "
-            "Let's expand x plus 2 times x plus 4. "
-            "Write x and positive 2 along the top, and x and positive 4 along the left side. "
-            "Now multiply the row and column headers for each of the four regions: "
-            "Top-left: x times x equals x squared. Top-right: x times 2 equals 2 x. "
-            "Bottom-left: 4 times x equals 4 x. Bottom-right: 4 times 2 equals 8. "
-            "Add all four areas together and combine the diagonal like terms 4 x plus 2 x to get x squared plus 6 x plus 8. "
-            "Now let's try a practice problem: expand x plus 5 times x minus 3 using the area model. "
-            "The four regions are x squared, 5 x, negative 3 x, and negative 15. "
-            "Combine 5 x minus 3 x to get 2 x, giving x squared plus 2 x minus 15!"
-        ),
-        "steps": [
-            ("Dimensions", r"(x + 2)(x + 4)", "#0f172a"),
-            ("4 Area Regions", r"x^2,\quad 2x,\quad 4x,\quad 8", "#2563eb"),
-            ("Sum Regions", r"x^2 + 2x + 4x + 8", "#059669"),
-            ("Standard Form", r"x^2 + 6x + 8", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"(x + 5)(x - 3)", "#0f172a"),
-            ("Regions", r"x^2 + 5x - 3x - 15", "#2563eb"),
-            ("Answer", r"x^2 + 2x - 15", "#059669"),
+        "segments": [
+            {
+                "narration": "An area model turns binomial multiplication into four simple rectangle areas!",
+                "label": "Dimensions",
+                "tex": r"(x + 2)(x + 4)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Put x and plus 2 along the top, and x and plus 4 along the side. Multiply each box: x squared, 4 x, 2 x, and 8.",
+                "label": "4 Area Regions",
+                "tex": r"x^2 + 4x + 2x + 8",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Combine the two x terms 4 x plus 2 x to get x squared plus 6 x plus 8.",
+                "label": "Standard Form",
+                "tex": r"x^2 + 6x + 8",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one yourself using the box method: expand x plus 5 times x minus 3.",
+                "label": "Try It Yourself",
+                "tex": r"(x + 5)(x - 3)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "The four boxes are x squared, 5 x, negative 3 x, and negative 15, giving x squared plus 2 x minus 15!",
+                "label": "Solution",
+                "tex": r"x^2 + 2x - 15",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "expand_special_product",
         "title": "Expand Special Products",
+        "subtitle": "MPM2D • Avoid the (x+3)² Trap!",
+        "visual": "area",
+        "area_labels": ["x", "+3", "x", "+3", "x^2", "3x", "3x", "9"],
         "rule": r"(a + b)^2 = a^2 + 2ab + b^2",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are expanding special products, and avoiding the number-one algebra trap. "
-            "When you see x plus 3 all squared, NEVER just square each term to get x squared plus 9! "
-            "Squaring a binomial means multiplying it by itself: x plus 3 times x plus 3. "
-            "Using the perfect square pattern, a plus b squared equals a squared plus 2 a b plus b squared. "
-            "With a equals x and b equals 3, we get x squared plus 2 times x times 3 plus 3 squared, which simplifies to x squared plus 6 x plus 9. "
-            "The second special product is sum and difference: a plus b times a minus b equals a squared minus b squared. "
-            "Now let's try a practice problem: expand 2 x minus 5 all squared. "
-            "Square the first term: 2 x squared is 4 x squared. "
-            "Double the product: 2 times 2 x times negative 5 is negative 20 x. "
-            "Square the last term: negative 5 squared is positive 25. So the answer is 4 x squared minus 20 x plus 25!"
-        ),
-        "steps": [
-            ("Perfect Square", r"(x + 3)^2", "#0f172a"),
-            ("Pattern", r"a^2 + 2ab + b^2", "#2563eb"),
-            ("Substitute", r"x^2 + 2(x)(3) + 3^2", "#059669"),
-            ("Expanded Form", r"x^2 + 6x + 9", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"(2x - 5)^2", "#0f172a"),
-            ("a = 2x, b = -5", r"(2x)^2 + 2(2x)(-5) + (-5)^2", "#2563eb"),
-            ("Answer", r"4x^2 - 20x + 25", "#059669"),
+        "segments": [
+            {
+                "narration": "Watch out for the number-one algebra trap: x plus 3 all squared is NOT x squared plus 9!",
+                "label": "Common Trap",
+                "tex": r"(x + 3)^2 \neq x^2 + 9",
+                "color": "#dc2626",
+            },
+            {
+                "narration": "Look at the area model for x plus 3 times x plus 3: besides x squared and 9, there are TWO 3 x rectangles!",
+                "label": "Two Middle Terms",
+                "tex": r"x^2 + 3x + 3x + 9",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "So x plus 3 squared equals x squared plus 6 x plus 9.",
+                "label": "Expanded Form",
+                "tex": r"x^2 + 6x + 9",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one yourself: expand 2 x minus 5 all squared.",
+                "label": "Try It Yourself",
+                "tex": r"(2x - 5)^2",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Square 2 x to get 4 x squared, double the product to get minus 20 x, and square minus 5 to get plus 25!",
+                "label": "Solution",
+                "tex": r"4x^2 - 20x + 25",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "discriminant_x_intercepts",
         "title": "Discriminant & x-Intercepts",
+        "subtitle": "MPM2D • How Many Zeros?",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-3, 3, 1],
+            "y_range": [-3, 6, 1],
+            "curves": [
+                {"a": 1, "h": 0, "k": -2, "color": "#059669", "label": "D > 0 (2 roots)"},
+                {"a": 1, "h": 0, "k": 0, "color": "#2563eb", "label": "D = 0 (1 root)"},
+                {"a": 1, "h": 0, "k": 2, "color": "#dc2626", "label": "D < 0 (0 roots)"},
+            ],
+            "dots": [[-1.41, 0, "#059669", ""], [1.41, 0, "#059669", ""], [0, 0, "#2563eb", ""]],
+        },
         "rule": r"D = b^2 - 4ac",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are determining the number of x-intercepts of a quadratic using the discriminant. "
-            "The discriminant is the expression inside the square root of the quadratic formula: D equals b squared minus 4 a c. "
-            "There are three cases. "
-            "Case 1: if D is greater than 0, the square root is positive, giving 2 distinct real x-intercepts. "
-            "Case 2: if D equals 0, plus or minus 0 gives the exact same value, so the vertex sits right on the x-axis with 1 x-intercept. "
-            "Case 3: if D is less than 0, you cannot take the real square root of a negative number, so there are 0 real x-intercepts. "
-            "Now let's test a practice problem: how many x-intercepts does y equals 2 x squared minus 4 x plus 5 have? "
-            "Substitute a equals 2, b equals negative 4, and c equals 5 into b squared minus 4 a c. "
-            "Negative 4 squared is 16, minus 4 times 2 times 5 which is 40. "
-            "16 minus 40 is negative 24, which is less than 0—so there are 0 x-intercepts!"
-        ),
-        "steps": [
-            ("Discriminant", r"D = b^2 - 4ac", "#0f172a"),
-            ("D > 0", r"2 \text{ distinct x-intercepts}", "#059669"),
-            ("D = 0", r"1 \text{ x-intercept (vertex on axis)}", "#2563eb"),
-            ("D < 0", r"0 \text{ real x-intercepts}", "#dc2626"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"y = 2x^2 - 4x + 5", "#0f172a"),
-            ("Compute D", r"D = (-4)^2 - 4(2)(5) = -24", "#2563eb"),
-            ("Answer", r"D < 0 \implies 0 \text{ x-intercepts}", "#dc2626"),
+        "segments": [
+            {
+                "narration": "How many times does a parabola cross the x-axis? Check the discriminant: b squared minus 4 a c!",
+                "label": "Discriminant",
+                "tex": r"D = b^2 - 4ac",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "If D is positive, like the green parabola, there are 2 x-intercepts. If D is 0, like the blue parabola, the vertex touches once. If D is negative, like the red curve, there are 0 real x-intercepts!",
+                "label": "Three Cases",
+                "tex": r"D > 0 \;(2),\quad D = 0 \;(1),\quad D < 0 \;(0)",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Let's test one: how many x-intercepts does y equals 2 x squared minus 4 x plus 5 have?",
+                "label": "Try It Yourself",
+                "tex": r"y = 2x^2 - 4x + 5",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "D equals negative 4 squared minus 4 times 2 times 5, which is 16 minus 40 equals negative 24. Since D is negative, there are 0 x-intercepts!",
+                "label": "Solution",
+                "tex": r"D = -24 < 0 \implies 0\text{ x-intercepts}",
+                "color": "#dc2626",
+            },
         ],
     },
     {
         "id": "completing_the_square",
         "title": "Completing the Square",
+        "subtitle": "MPM2D • Standard to Vertex Form",
+        "visual": "area",
+        "area_labels": ["x", "+3", "x", "+3", "x^2", "3x", "3x", "9"],
         "rule": r"x^2 + bx = \left(x + \frac{b}{2}\right)^2 - \left(\frac{b}{2}\right)^2",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are converting standard form to vertex form by completing the square. "
-            "Let's convert y equals x squared plus 6 x plus 5 into vertex form. "
-            "Step one: group the x squared and x terms together. "
-            "Step two: take half of b, which is 6 divided by 2 equals 3, and square it to get 9. "
-            "Step three: add and subtract 9 inside the brackets so the value of the equation stays unchanged. "
-            "Step four: the first three terms, x squared plus 6 x plus 9, form a perfect square trinomial: x plus 3 all squared! "
-            "Keep the negative 9 outside the bracket and combine it with plus 5: negative 9 plus 5 is negative 4. "
-            "So vertex form is y equals x plus 3 squared minus 4, with vertex negative 3, negative 4. "
-            "Now let's try a practice problem: complete the square for y equals x squared minus 8 x plus 10. "
-            "Half of negative 8 is negative 4, squared is 16. "
-            "Add and subtract 16: x minus 4 squared minus 16 plus 10, which gives x minus 4 squared minus 6!"
-        ),
-        "steps": [
-            ("Standard Form", r"y = x^2 + 6x + 5", "#0f172a"),
-            ("Half of 6, squared: 9", r"y = (x^2 + 6x + 9 - 9) + 5", "#2563eb"),
-            ("Factor Trinomial", r"y = (x + 3)^2 - 9 + 5", "#059669"),
-            ("Vertex Form", r"y = (x + 3)^2 - 4", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"y = x^2 - 8x + 10", "#0f172a"),
-            ("Add & Sub 16", r"(x^2 - 8x + 16) - 16 + 10", "#2563eb"),
-            ("Answer", r"y = (x - 4)^2 - 6", "#059669"),
+        "segments": [
+            {
+                "narration": "To convert y equals x squared plus 6 x plus 5 to vertex form, we literally complete a geometric square!",
+                "label": "Standard Form",
+                "tex": r"y = x^2 + 6x + 5",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Split 6 x into two 3 x strips around the x squared box. Look at the missing corner: 3 times 3 equals 9!",
+                "label": "Half of 6, Squared = 9",
+                "tex": r"y = (x^2 + 6x + 9 - 9) + 5",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "The completed square factors into x plus 3 squared, and negative 9 plus 5 simplifies to minus 4.",
+                "label": "Vertex Form",
+                "tex": r"y = (x + 3)^2 - 4",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one yourself: complete the square for y equals x squared minus 8 x plus 10.",
+                "label": "Try It Yourself",
+                "tex": r"y = x^2 - 8x + 10",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Half of negative 8 is negative 4, squared is 16. Add and subtract 16 to get x minus 4 squared minus 6!",
+                "label": "Solution",
+                "tex": r"y = (x - 4)^2 - 6",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "vertex_optimal_value",
         "title": "Vertex & Max/Min Optimal Value",
+        "subtitle": "MPM2D • Opens Up vs Opens Down",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-1, 7, 1],
+            "y_range": [-2, 10, 2],
+            "curves": [{"a": -1, "h": 3, "k": 8, "color": "#2563eb", "label": "y = -(x-3)^2 + 8"}],
+            "dots": [[3, 8, "#d97706", "Max V(3, 8)"]],
+        },
         "rule": r"a > 0 \implies \text{Min } k \quad | \quad a < 0 \implies \text{Max } k",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are finding the vertex and the maximum or minimum optimal value of a quadratic. "
-            "In vertex form y equals a times x minus h squared plus k, the vertex is h, k. "
-            "The y-coordinate k is the optimal value, and the x-coordinate h tells us where it occurs. "
-            "If a is positive, the parabola opens upward like a U, so it has a minimum value. "
-            "If a is negative, the parabola opens downward like an upside-down U, so it has a maximum value. "
-            "Let's analyze y equals negative 2 times x minus 3 squared plus 8. "
-            "The vertex is 3, 8. Since a equals negative 2 is less than 0, the parabola opens downward. "
-            "Therefore, it has a maximum value of 8 when x equals 3. "
-            "Now let's try a practice problem: find the optimal value of y equals 4 times x plus 1 squared minus 7. "
-            "The vertex is negative 1, negative 7. Since a equals 4 is positive, it opens upward, "
-            "so it has a minimum value of negative 7 when x equals negative 1!"
-        ),
-        "steps": [
-            ("Vertex Form", r"y = -2(x - 3)^2 + 8", "#0f172a"),
-            ("Vertex", r"V(3, 8)", "#2563eb"),
-            ("Direction", r"a = -2 < 0 \implies \text{Opens Down}", "#059669"),
-            ("Optimal Value", r"\text{Max } y = 8 \text{ at } x = 3", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"y = 4(x + 1)^2 - 7", "#0f172a"),
-            ("a = 4 > 0, V(-1, -7)", r"\text{Opens Up}", "#2563eb"),
-            ("Answer", r"\text{Min } y = -7 \text{ at } x = -1", "#059669"),
+        "segments": [
+            {
+                "narration": "In vertex form, the vertex h, k gives us the highest or lowest point on the parabola—called the optimal value!",
+                "label": "Vertex Form",
+                "tex": r"y = -2(x - 3)^2 + 8",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Here the vertex is 3, 8. Because a is negative, the parabola opens downward like a hill.",
+                "label": "Opens Down (a < 0)",
+                "tex": r"V(3, 8) \implies \text{Maximum}",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "So the maximum optimal value is y equals 8, and it occurs when x equals 3.",
+                "label": "Optimal Value",
+                "tex": r"\text{Max } y = 8 \text{ at } x = 3",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one: find the optimal value of y equals 4 times x plus 1 squared minus 7.",
+                "label": "Try It Yourself",
+                "tex": r"y = 4(x + 1)^2 - 7",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Since a equals 4 is positive, it opens upward, giving a minimum value of negative 7 at x equals negative 1!",
+                "label": "Solution",
+                "tex": r"\text{Min } y = -7 \text{ at } x = -1",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "equation_from_graph_vertex",
         "title": "Equation from Vertex & Point",
+        "subtitle": "MPM2D • Solving for a",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-2, 6, 1],
+            "y_range": [-5, 7, 2],
+            "curves": [{"a": 2, "h": 2, "k": -3, "color": "#2563eb", "label": "y = 2(x-2)^2 - 3"}],
+            "dots": [[2, -3, "#d97706", "V(2,-3)"], [4, 5, "#059669", "P(4,5)"]],
+        },
         "rule": r"\text{Sub } (h, k) \text{ and } (x, y) \text{ to solve for } a",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are finding the equation of a quadratic function given its vertex and one other point. "
-            "Whenever you are given the vertex, always start with vertex form: y equals a times x minus h squared plus k. "
-            "Let's find the equation of a parabola with vertex 2, negative 3 that passes through the point 4, 5. "
-            "Step one: substitute h equals 2 and k equals negative 3 into vertex form: y equals a times x minus 2 squared minus 3. "
-            "Step two: substitute the point x equals 4 and y equals 5: 5 equals a times 4 minus 2 squared minus 3. "
-            "Step three: simplify and solve for a. 4 minus 2 is 2, and 2 squared is 4. Add 3 to both sides to get 8 equals 4 a, so a equals 2. "
-            "Step four: write the final equation with a, h, and k filled in: y equals 2 times x minus 2 squared minus 3. "
-            "Now try a practice problem: vertex 1, 4 passing through 3, negative 4. "
-            "Plugging in gives negative 4 equals a times 3 minus 1 squared plus 4, so negative 8 equals 4 a, giving a equals negative 2!"
-        ),
-        "steps": [
-            ("Vertex (2, -3)", r"y = a(x - 2)^2 - 3", "#0f172a"),
-            ("Sub Point (4, 5)", r"5 = a(4 - 2)^2 - 3", "#2563eb"),
-            ("Solve for a", r"8 = 4a \implies a = 2", "#059669"),
-            ("Equation", r"y = 2(x - 2)^2 - 3", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"V(1, 4),\; P(3, -4)", "#0f172a"),
-            ("Sub Point", r"-4 = a(3 - 1)^2 + 4", "#2563eb"),
-            ("Answer", r"y = -2(x - 1)^2 + 4", "#059669"),
+        "segments": [
+            {
+                "narration": "If a graph gives you the vertex 2, negative 3 and another point 4, 5, always start with vertex form!",
+                "label": "Plug in Vertex (2, -3)",
+                "tex": r"y = a(x - 2)^2 - 3",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Next, substitute the green point x equals 4 and y equals 5 into the equation.",
+                "label": "Sub Point (4, 5)",
+                "tex": r"5 = a(4 - 2)^2 - 3",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "4 minus 2 is 2, squared is 4. Add 3 to get 8 equals 4 a, so a equals 2!",
+                "label": "Solve for a",
+                "tex": r"8 = 4a \implies a = 2 \implies y = 2(x - 2)^2 - 3",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one yourself: vertex 1, 4 passing through 3, negative 4.",
+                "label": "Try It Yourself",
+                "tex": r"V(1, 4),\; P(3, -4)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Negative 4 equals a times 3 minus 1 squared plus 4 gives negative 8 equals 4 a, so a equals negative 2!",
+                "label": "Solution",
+                "tex": r"y = -2(x - 1)^2 + 4",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "graphing_step_pattern",
         "title": "Graphing with the Step Pattern",
+        "subtitle": "MPM2D • Fast Parabola Sketching",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-2, 5, 1],
+            "y_range": [-4, 8, 2],
+            "curves": [{"a": 2, "h": 1, "k": -3, "color": "#2563eb", "label": "y = 2(x-1)^2 - 3"}],
+            "dots": [[1, -3, "#d97706", "V(1,-3)"], [2, -1, "#059669", "+2"], [3, 5, "#059669", "+6"]],
+        },
         "rule": r"\text{Step Pattern} = a \times (1, 3, 5, \dots)",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are graphing quadratics super fast using the step pattern. "
-            "For the parent parabola y equals x squared, every time you step 1 unit right from the vertex, you go up by 1, then 3, then 5, then 7. "
-            "When there is a vertical stretch factor a, you simply multiply that basic 1, 3, 5 pattern by a! "
-            "Let's graph y equals 2 times x minus 1 squared minus 3. "
-            "Step one: plot the vertex at 1, negative 3. "
-            "Step two: multiply the step pattern 1, 3, 5 by a equals 2, which gives 2, 6, 10. "
-            "Step three: from the vertex, go right 1 and up 2 to plot 2, negative 1. Then go right 1 and up 6 to plot 3, 5. "
-            "Mirror those same points across the axis of symmetry x equals 1 to the left side! "
-            "Now try a practice problem: what is the step pattern for y equals negative 0.5 times x plus 2 squared plus 6? "
-            "Multiply 1, 3, 5 by negative 0.5 to get negative 0.5, negative 1.5, negative 2.5—meaning you step down!"
-        ),
-        "steps": [
-            ("Vertex Form", r"y = 2(x - 1)^2 - 3", "#0f172a"),
-            ("Plot Vertex", r"V(1, -3)", "#2563eb"),
-            ("Basic Pattern", r"1,\; 3,\; 5", "#059669"),
-            ("Multiply by a = 2", r"2 \times (1, 3, 5) = (2, 6, 10)", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"y = -0.5(x + 2)^2 + 6", "#0f172a"),
-            ("Vertex: (-2, 6)", r"-0.5 \times (1, 3, 5)", "#2563eb"),
-            ("Step Pattern", r"(-0.5,\; -1.5,\; -2.5)", "#059669"),
+        "segments": [
+            {
+                "narration": "Want to graph a parabola in 10 seconds without a table of values? Use the step pattern!",
+                "label": "Vertex Form",
+                "tex": r"y = 2(x - 1)^2 - 3",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Plot the vertex at 1, negative 3. Then multiply the basic 1, 3, 5 pattern by a equals 2 to get 2, 6, 10.",
+                "label": "Multiply by a = 2",
+                "tex": r"2 \times (1, 3, 5) = (2, 6, 10)",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "Step right 1, up 2 to hit 2, negative 1. Step right 1, up 6 to hit 3, 5, and mirror to the left!",
+                "label": "Plot & Mirror",
+                "tex": r"(1, -3) \rightarrow (2, -1) \rightarrow (3, 5)",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one: what is the step pattern for y equals negative 0.5 times x plus 2 squared plus 6?",
+                "label": "Try It Yourself",
+                "tex": r"y = -0.5(x + 2)^2 + 6",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Multiply 1, 3, 5 by negative 0.5 to step down by 0.5, 1.5, and 2.5!",
+                "label": "Solution",
+                "tex": r"(-0.5,\; -1.5,\; -2.5)",
+                "color": "#d97706",
+            },
         ],
     },
     {
         "id": "quadratic_word_problem_max_area",
         "title": "Max Area Optimization Problem",
+        "subtitle": "MPM2D • Quadratic Word Problem",
+        "visual": "graph",
+        "graph": {
+            "x_range": [-2, 22, 5],
+            "y_range": [-20, 240, 50],
+            "curves": [{"a": -2, "h": 10, "k": 200, "color": "#2563eb", "label": "A(w) = w(40-2w)"}],
+            "dots": [[0, 0, "#059669", "0"], [20, 0, "#059669", "20"], [10, 200, "#d97706", "Max(10, 200)"]],
+            "aos": 10,
+        },
         "rule": r"\text{Optimal } x = \frac{r + s}{2} \implies \text{Max Area}",
-        "voiceover": (
-            "Welcome to M P M 2 D! Today we are solving a classic quadratic optimization word problem: maximizing rectangular area. "
-            "Suppose a farmer has 40 meters of fencing to build a rectangular pen against a barn wall, so only three sides need fencing. "
-            "Let w be the width and l be the length. The fencing constraint is 2 w plus l equals 40, so l equals 40 minus 2 w. "
-            "Area equals width times length, so A of w equals w times 40 minus 2 w. "
-            "Notice this is already in factored form! Its zeros are w equals 0 and w equals 20. "
-            "The maximum area occurs on the axis of symmetry halfway between the zeros: 0 plus 20 divided by 2 equals 10 meters. "
-            "Plug w equals 10 back in: length is 40 minus 20 equals 20 meters, and the maximum area is 10 times 20 equals 200 square meters! "
-            "Now try a practice problem: same setup with 60 meters of fencing. "
-            "A of w equals w times 60 minus 2 w, with zeros at 0 and 30. "
-            "Halfway is w equals 15, giving a maximum area of 15 times 30 equals 450 square meters!"
-        ),
-        "steps": [
-            ("Constraint", r"2w + l = 40 \implies l = 40 - 2w", "#0f172a"),
-            ("Area Function", r"A(w) = w(40 - 2w)", "#2563eb"),
-            ("Zeros: 0 and 20", r"w_{\max} = \frac{0 + 20}{2} = 10", "#059669"),
-            ("Max Area", r"A(10) = 10(20) = 200\text{ m}^2", "#d97706"),
-        ],
-        "practice": [
-            ("Try It Yourself", r"60\text{ m fencing} \implies A(w) = w(60 - 2w)", "#0f172a"),
-            ("Optimal Width", r"w_{\max} = \frac{0 + 30}{2} = 15\text{ m}", "#2563eb"),
-            ("Max Area", r"A(15) = 450\text{ m}^2", "#059669"),
+        "segments": [
+            {
+                "narration": "A farmer has 40 meters of fencing for 3 sides of a pen. 2 w plus l equals 40, so l equals 40 minus 2 w.",
+                "label": "Area Function",
+                "tex": r"A(w) = w(40 - 2w)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Look at the parabola: its zeros are w equals 0 and w equals 20.",
+                "label": "Find Zeros",
+                "tex": r"w = 0 \quad \text{and} \quad w = 20",
+                "color": "#2563eb",
+            },
+            {
+                "narration": "The maximum area sits right at the vertex halfway between them: w equals 10 meters, giving 200 square meters!",
+                "label": "Max Area at Vertex",
+                "tex": r"w = 10\text{ m} \implies A(10) = 200\text{ m}^2",
+                "color": "#059669",
+            },
+            {
+                "narration": "Try one yourself: what is the maximum area with 60 meters of fencing on 3 sides?",
+                "label": "Try It Yourself",
+                "tex": r"A(w) = w(60 - 2w)",
+                "color": "#0f172a",
+            },
+            {
+                "narration": "Zeros are 0 and 30, so optimal width is 15 meters, giving 15 times 30 equals 450 square meters!",
+                "label": "Solution",
+                "tex": r"w = 15\text{ m} \implies A_{\max} = 450\text{ m}^2",
+                "color": "#d97706",
+            },
         ],
     },
 ]

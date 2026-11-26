@@ -1,7 +1,7 @@
 """
 generate_math_video.py
-Generates a ~2:30 (150s) MPM2D math educational video in a clean WHITE & LIGHT theme
-(1080x1920 vertical or 1920x1080 landscape) using Manim, edge-tts, and ffmpeg.
+Generates an engaging, 100% audio-video synced MPM2D math video in a clean WHITE & LIGHT theme
+using per-segment edge-tts durations + Manim visual scenes (parabola graphs, area models, algebra).
 """
 
 import argparse
@@ -11,7 +11,7 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, List, Optional
 
 from mpm2d_topics import pick_topic
 
@@ -21,123 +21,239 @@ import json
 from manim import *
 
 TOPIC_DATA = json.loads(r"""__TOPIC_JSON__""")
-TARGET_DURATION = 150.0  # ~2:30 target video length in seconds
+SEG_DURATIONS = json.loads(r"""__DURATIONS_JSON__""")
 
-class MPM2DTopicScene(Scene):
+class MPM2DVisualScene(Scene):
+    def build_graph_visual(self, max_w):
+        g = TOPIC_DATA["graph"]
+        xr = g["x_range"]
+        yr = g["y_range"]
+        axes = Axes(
+            x_range=xr,
+            y_range=yr,
+            x_length=max_w - 0.3,
+            y_length=2.8,
+            axis_config={"color": "#64748b", "stroke_width": 2, "include_tip": True},
+            tips=True,
+        )
+        axes_labels = axes.get_axis_labels(
+            MathTex("x", font_size=22, color="#475569"),
+            MathTex("y", font_size=22, color="#475569"),
+        )
+        objs = VGroup(axes, axes_labels)
+        curves_grp = VGroup()
+        for c in g.get("curves", []):
+            a, h, k = c["a"], c["h"], c["k"]
+            curve = axes.plot(
+                lambda x, a=a, h=h, k=k: a * (x - h) ** 2 + k,
+                x_range=[xr[0], xr[1]],
+                color=c["color"],
+                stroke_width=3.5,
+            )
+            # Clip visually to y_range
+            curves_grp.add(curve)
+        dots_grp = VGroup()
+        for dx, dy, dcol, dtxt in g.get("dots", []):
+            pt = axes.coords_to_point(dx, dy)
+            dot = Dot(pt, color=dcol, radius=0.07)
+            dots_grp.add(dot)
+            if dtxt:
+                lbl = Text(dtxt, font_size=16, color=dcol, weight=BOLD).next_to(dot, UR, buff=0.06)
+                dots_grp.add(lbl)
+        aos_grp = VGroup()
+        if "aos" in g:
+            ax_x = g["aos"]
+            p1 = axes.coords_to_point(ax_x, yr[0])
+            p2 = axes.coords_to_point(ax_x, yr[1])
+            aos_grp.add(DashedLine(p1, p2, color="#dc2626", stroke_width=2.5))
+        return objs, curves_grp, dots_grp, aos_grp
+
+    def build_area_visual(self, max_w):
+        al = TOPIC_DATA["area_labels"]
+        top_l, top_r, left_t, left_b, c11, c12, c21, c22 = al
+        w, h = 1.35, 0.85
+        b11 = Rectangle(width=w, height=h, color="#38bdf8", fill_color="#e0f2fe", fill_opacity=1.0)
+        b12 = Rectangle(width=w, height=h, color="#34d399", fill_color="#d1fae5", fill_opacity=1.0).next_to(b11, RIGHT, buff=0.04)
+        b21 = Rectangle(width=w, height=h, color="#34d399", fill_color="#d1fae5", fill_opacity=1.0).next_to(b11, DOWN, buff=0.04)
+        b22 = Rectangle(width=w, height=h, color="#fbbf24", fill_color="#fef3c7", fill_opacity=1.0).next_to(b21, RIGHT, buff=0.04)
+
+        t11 = MathTex(c11, font_size=26, color="#0369a1").move_to(b11)
+        t12 = MathTex(c12, font_size=26, color="#047857").move_to(b12)
+        t21 = MathTex(c21, font_size=26, color="#047857").move_to(b21)
+        t22 = MathTex(c22, font_size=26, color="#b45309").move_to(b22)
+
+        h_top1 = MathTex(top_l, font_size=24, color="#0f172a").next_to(b11, UP, buff=0.12)
+        h_top2 = MathTex(top_r, font_size=24, color="#0f172a").next_to(b12, UP, buff=0.12)
+        h_left1 = MathTex(left_t, font_size=24, color="#0f172a").next_to(b11, LEFT, buff=0.12)
+        h_left2 = MathTex(left_b, font_size=24, color="#0f172a").next_to(b21, LEFT, buff=0.12)
+
+        grid = VGroup(b11, b12, b21, b22, t11, t12, t21, t22, h_top1, h_top2, h_left1, h_left2)
+        if grid.width > max_w:
+            grid.set(width=max_w)
+        return grid
+
     def construct(self):
         self.camera.background_color = "#ffffff"
         max_w = 4.0 if self.camera.frame_width < 6 else 11.0
-        elapsed = 0.0
 
-        # Light header banner
-        title = Text(TOPIC_DATA["title"], font_size=34, color="#0f172a", weight=BOLD)
+        # Top header
+        title = Text(TOPIC_DATA["title"], font_size=32, color="#0f172a", weight=BOLD)
         if title.width > max_w:
             title.set(width=max_w)
-        subtitle = Text("MPM2D • Grade 10 Academic Math", font_size=22, color="#2563eb")
-        header = VGroup(title, subtitle).arrange(DOWN, buff=0.12).to_edge(UP, buff=0.45)
+        subtitle = Text(TOPIC_DATA["subtitle"], font_size=20, color="#2563eb")
+        header = VGroup(title, subtitle).arrange(DOWN, buff=0.1).to_edge(UP, buff=0.4)
 
         rule_box = RoundedRectangle(
-            corner_radius=0.15,
-            width=max_w + 0.3,
-            height=0.95,
+            corner_radius=0.12,
+            width=max_w + 0.2,
+            height=0.82,
             color="#cbd5e1",
-            fill_color="#f1f5f9",
+            fill_color="#f8fafc",
             fill_opacity=1.0,
             stroke_width=2,
         )
-        rule_tex = MathTex(TOPIC_DATA["rule"], font_size=30, color="#1e293b")
+        rule_tex = MathTex(TOPIC_DATA["rule"], font_size=26, color="#1e293b")
         if rule_tex.width > max_w - 0.15:
             rule_tex.set(width=max_w - 0.15)
         rule_tex.move_to(rule_box.get_center())
-        rule_card = VGroup(rule_box, rule_tex).next_to(header, DOWN, buff=0.35)
+        rule_card = VGroup(rule_box, rule_tex).next_to(header, DOWN, buff=0.25)
 
-        self.play(Write(title), FadeIn(subtitle, shift=UP * 0.1), run_time=2.0)
-        self.play(FadeIn(rule_card, shift=UP * 0.1), run_time=1.8)
-        self.wait(6.0)
-        elapsed += 9.8
+        self.add(header, rule_card)
 
-        # Part 1: Worked Example
-        steps = TOPIC_DATA["steps"]
-        step_groups = []
-        for label, tex, color in steps:
-            lbl = Text(label, font_size=22, color="#475569", weight=BOLD)
+        # Middle Visual Stage (Graph / Area Model / Progress Accent)
+        visual_mode = TOPIC_DATA.get("visual", "algebra")
+        visual_anchor = rule_card.get_bottom()[1] - 0.35
+
+        graph_objs = None
+        area_grid = None
+        if visual_mode == "graph":
+            axes_grp, curves_grp, dots_grp, aos_grp = self.build_graph_visual(max_w)
+            full_graph = VGroup(axes_grp, curves_grp, dots_grp, aos_grp)
+            full_graph.move_to([0, visual_anchor - full_graph.height / 2 - 0.1, 0])
+            graph_objs = (axes_grp, curves_grp, dots_grp, aos_grp)
+            card_top_y = full_graph.get_bottom()[1] - 0.35
+        elif visual_mode == "area":
+            area_grid = self.build_area_visual(max_w)
+            area_grid.move_to([0, visual_anchor - area_grid.height / 2 - 0.15, 0])
+            card_top_y = area_grid.get_bottom()[1] - 0.35
+        else:
+            card_top_y = visual_anchor - 0.3
+
+        # Lower Zone: Synced Step Card (replaces cleanly each segment)
+        active_card = None
+        segments = TOPIC_DATA["segments"]
+        for i, seg in enumerate(segments):
+            dur = float(SEG_DURATIONS[i])
+            lbl = Text(seg["label"], font_size=22, color="#475569", weight=BOLD)
             if lbl.width > max_w:
                 lbl.set(width=max_w)
-            eq = MathTex(tex, font_size=38, color=color)
-            if eq.width > max_w:
-                eq.set(width=max_w)
-            grp = VGroup(lbl, eq).arrange(DOWN, buff=0.12)
-            step_groups.append(grp)
+            eq = MathTex(seg["tex"], font_size=36, color=seg["color"])
+            if eq.width > max_w - 0.2:
+                eq.set(width=max_w - 0.2)
+            content = VGroup(lbl, eq).arrange(DOWN, buff=0.14)
+            box = RoundedRectangle(
+                corner_radius=0.14,
+                width=max_w + 0.2,
+                height=max(1.35, content.height + 0.45),
+                color=seg["color"],
+                fill_color="#f8fafc",
+                fill_opacity=1.0,
+                stroke_width=2.5,
+            )
+            content.move_to(box.get_center())
+            new_card = VGroup(box, content)
+            new_card.move_to([0, card_top_y - new_card.height / 2, 0])
 
-        stack1 = VGroup(*step_groups).arrange(DOWN, buff=0.38).next_to(rule_card, DOWN, buff=0.45)
-        avail_h = (rule_card.get_bottom()[1] - 0.45) - (-self.camera.frame_height / 2 + 0.6)
-        if stack1.height > avail_h:
-            stack1.set(height=avail_h)
-            stack1.next_to(rule_card, DOWN, buff=0.4)
+            anims = []
+            if active_card is not None:
+                anims.append(FadeOut(active_card, shift=UP * 0.1))
+            anims.append(FadeIn(new_card, shift=UP * 0.1))
 
-        for grp in step_groups:
-            self.play(FadeIn(grp[0], shift=UP * 0.1), Write(grp[1]), run_time=2.5)
-            self.wait(11.5)
-            elapsed += 14.0
+            # Trigger visual animations in sync with early segments
+            if visual_mode == "graph" and graph_objs is not None:
+                axes_grp, curves_grp, dots_grp, aos_grp = graph_objs
+                if i == 0:
+                    anims.append(Create(axes_grp))
+                elif i == 1:
+                    anims.append(Create(curves_grp))
+                elif i == 2:
+                    if len(dots_grp) > 0:
+                        anims.append(FadeIn(dots_grp))
+                    if len(aos_grp) > 0:
+                        anims.append(Create(aos_grp))
+            elif visual_mode == "area" and area_grid is not None:
+                if i == 0:
+                    anims.append(FadeIn(area_grid))
 
-        # Transition to Practice Problem
-        self.play(FadeOut(stack1), run_time=1.2)
-        elapsed += 1.2
-
-        # Part 2: Practice Problem ("Try It Yourself")
-        practice = TOPIC_DATA["practice"]
-        prac_groups = []
-        for label, tex, color in practice:
-            lbl = Text(label, font_size=24, color="#2563eb", weight=BOLD)
-            if lbl.width > max_w:
-                lbl.set(width=max_w)
-            eq = MathTex(tex, font_size=40, color=color)
-            if eq.width > max_w:
-                eq.set(width=max_w)
-            grp = VGroup(lbl, eq).arrange(DOWN, buff=0.14)
-            prac_groups.append(grp)
-
-        stack2 = VGroup(*prac_groups).arrange(DOWN, buff=0.48).next_to(rule_card, DOWN, buff=0.55)
-        if stack2.height > avail_h:
-            stack2.set(height=avail_h)
-            stack2.next_to(rule_card, DOWN, buff=0.45)
-
-        for idx, grp in enumerate(prac_groups):
-            self.play(FadeIn(grp[0], shift=UP * 0.1), Write(grp[1]), run_time=2.5)
-            wait_t = 16.0 if idx == 0 else 12.0
-            self.wait(wait_t)
-            elapsed += 2.5 + wait_t
-
-        # Pad remaining time to reach ~150s (2:30)
-        remaining = max(3.0, TARGET_DURATION - elapsed)
-        self.wait(remaining)
+            rt = min(1.4, max(0.5, dur * 0.35))
+            self.play(*anims, run_time=rt)
+            if dur - rt > 0.05:
+                self.wait(dur - rt)
+            active_card = new_card
 '''
 
 
 async def _generate_tts(text: str, output_mp3: str, voice: str = "en-US-AriaNeural") -> None:
     import edge_tts
 
-    communicate = edge_tts.Communicate(text, voice)
+    communicate = edge_tts.Communicate(text, voice, rate="+5%")
     await communicate.save(output_mp3)
 
 
-def generate_voiceover(output_mp3: str, script_text: str) -> str:
-    """Generate voiceover MP3 using edge-tts."""
-    asyncio.run(_generate_tts(script_text, output_mp3))
-    if not os.path.isfile(output_mp3) or os.path.getsize(output_mp3) == 0:
-        raise RuntimeError(f"Failed to generate voiceover audio at {output_mp3}")
-    return output_mp3
+def _get_audio_duration(mp3_path: str) -> float:
+    cmd = [
+        "ffprobe",
+        "-v", "quiet",
+        "-print_format", "json",
+        "-show_format",
+        mp3_path,
+    ]
+    res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    return float(json.loads(res.stdout)["format"]["duration"])
+
+
+def generate_synced_voiceover(segments: List[Dict[str, Any]], tmpdir: str, out_mp3: str) -> List[float]:
+    """Generate one MP3 per segment, measure exact durations, and concatenate into out_mp3."""
+    durations: List[float] = []
+    concat_list_path = os.path.join(tmpdir, "concat.txt")
+
+    with open(concat_list_path, "w", encoding="utf-8") as cf:
+        for idx, seg in enumerate(segments):
+            seg_mp3 = os.path.join(tmpdir, f"seg_{idx}.mp3")
+            asyncio.run(_generate_tts(seg["narration"], seg_mp3))
+            dur = _get_audio_duration(seg_mp3)
+            durations.append(round(dur, 3))
+            cf.write(f"file '{seg_mp3}'\n")
+
+    cmd = [
+        "ffmpeg",
+        "-y",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", concat_list_path,
+        "-c", "copy",
+        out_mp3,
+    ]
+    res = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if res.returncode != 0:
+        raise RuntimeError(f"ffmpeg concat failed:\n{res.stderr}")
+    return durations
 
 
 def render_manim_video(
     output_dir: str,
     topic_data: Dict[str, Any],
+    durations: List[float],
     is_short: bool = True,
 ) -> str:
-    """Render the Manim scene to an MP4 file and return its path."""
+    """Render the Manim scene with exact per-segment durations."""
     os.makedirs(output_dir, exist_ok=True)
     scene_file = os.path.join(output_dir, "scene_mpm2d.py")
-    scene_code = SCENE_SCRIPT_TEMPLATE.replace("__TOPIC_JSON__", json.dumps(topic_data))
+    scene_code = (
+        SCENE_SCRIPT_TEMPLATE
+        .replace("__TOPIC_JSON__", json.dumps(topic_data))
+        .replace("__DURATIONS_JSON__", json.dumps(durations))
+    )
     with open(scene_file, "w", encoding="utf-8") as f:
         f.write(scene_code)
 
@@ -148,21 +264,21 @@ def render_manim_video(
         "--resolution", resolution,
         "--media_dir", os.path.join(output_dir, "media"),
         scene_file,
-        "MPM2DTopicScene",
+        "MPM2DVisualScene",
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         raise RuntimeError(f"Manim render failed:\n{result.stderr}\n{result.stdout}")
 
     media_root = Path(output_dir) / "media" / "videos"
-    mp4_files = list(media_root.rglob("MPM2DTopicScene.mp4"))
+    mp4_files = list(media_root.rglob("MPM2DVisualScene.mp4"))
     if not mp4_files:
         raise FileNotFoundError(f"Could not find rendered Manim MP4 under {media_root}")
     return str(mp4_files[0])
 
 
 def mux_audio_video(video_path: str, audio_path: str, output_mp4: str) -> str:
-    """Mux video and audio using ffmpeg without cutting off the longer stream."""
+    """Mux synced video and audio using ffmpeg."""
     os.makedirs(os.path.dirname(os.path.abspath(output_mp4)), exist_ok=True)
     cmd = [
         "ffmpeg",
@@ -186,23 +302,23 @@ def generate_math_video(
     offset: int = 0,
     is_short: bool = True,
 ) -> Dict[str, Any]:
-    """End-to-end content generation: pick MPM2D topic + Manim + edge-tts + ffmpeg mux."""
+    """End-to-end content generation with frame-accurate per-segment audio-video sync."""
     topic_data = pick_topic(topic_id, offset=offset)
-    print(f"Selected MPM2D topic [{topic_data['id']}]: {topic_data['title']}")
-    print(f"Theme: White & Light | Target length: ~2:30 | Format: {'1080x1920' if is_short else '1920x1080'}")
+    print(f"Selected MPM2D topic [{topic_data['id']}]: {topic_data['title']} (visual={topic_data.get('visual')})")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        raw_video = render_manim_video(tmpdir, topic_data, is_short=is_short)
         voice_mp3 = os.path.join(tmpdir, "voiceover.mp3")
-        generate_voiceover(voice_mp3, topic_data["voiceover"])
+        durations = generate_synced_voiceover(topic_data["segments"], tmpdir, voice_mp3)
+        print(f"Per-segment audio durations (total {sum(durations):.1f}s): {durations}")
+        raw_video = render_manim_video(tmpdir, topic_data, durations, is_short=is_short)
         mux_audio_video(raw_video, voice_mp3, output_mp4)
 
-    print(f"Final video saved to: {output_mp4}")
+    print(f"Final synced video saved to: {output_mp4}")
     return {"output_mp4": output_mp4, "topic": topic_data}
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate a 2:30 light-theme MPM2D math video.")
+    parser = argparse.ArgumentParser(description="Generate a synced light-theme MPM2D math video.")
     parser.add_argument(
         "--output",
         default="/content/drive/MyDrive/MathYouTube/mpm2d_lesson.mp4",
