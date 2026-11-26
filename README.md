@@ -1,10 +1,20 @@
-# MPM2D video pipeline
+# Math video pipeline
 
-The scheduled GitHub Actions job renders four lessons per day. With 119 topics, one complete rotation takes 29 days and three slots on day 30. Each topic has a stable ID, so adding lessons mid-cycle makes them eligible immediately.
+The scheduled GitHub Actions job renders four videos per day in mixed mode. The shared rotation contains 119 MPM2D lessons and ten geometric proofs. The first slot goes to a proof while any remain in the current cycle. Each topic has a stable ID, so new topics become eligible immediately.
+
+## Visual proofs
+
+The ten proof scenes use on-screen geometric motion and short equations on a white background. Their curriculum tags cover HKDSE, IB Mathematics AA/AI, and Ontario MPM2D, MCR3U, MHF4U, and MCV4U as applicable.
+
+```sh
+python run_pipeline.py --mode visual_proof --batch 1 --topic-id diff_of_squares --skip-upload --output-dir output
+```
+
+Use `--mode lesson` for the original lesson bank, `--mode visual_proof` for the proof bank, or `--mode mixed` for both. Proofs render at 1080×1920 and 30 fps. Each Edge TTS segment is decoded to 48 kHz PCM and measured with ffprobe. Silence of less than one video frame aligns the end of each clip to a frame boundary. Manim renders one timed clip per narration segment. The pipeline verifies every clip's frame count, then checks the muxed audio and video start times and durations before allowing upload.
 
 ## Publication history
 
-The workflow stores `published_history.json` on the dedicated `publication-history` branch. It creates the branch on its first upload. Each upload gets two checkpoints. The first records the topic ID and intended publication time under `pending`. The second adds the successfully scheduled topic ID to `published` and clears `pending`. The next selection starts a new cycle once all current topic IDs have been scheduled.
+The workflow stores `published_history.json` on the dedicated `publication-history` branch. It creates the branch on its first upload. Each upload gets two checkpoints. The first records the topic ID and intended publication time under `pending`. The second adds the successfully scheduled topic ID to `published` and clears `pending`. The next selection starts a new cycle once all topic IDs in the selected mode have been scheduled. Entries from outside that mode stay in history.
 
 If an upload stops between checkpoints, check the pending lesson and schedule time in YouTube Studio. If the video exists, add its topic ID to `published`. If the upload failed, leave that list as it is. In both cases, set `pending` to `null` and save the change on the history branch before rerunning. Topics published before tracking began can be seeded by ID in the first cycle.
 

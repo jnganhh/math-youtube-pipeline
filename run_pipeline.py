@@ -13,15 +13,15 @@ import subprocess
 from pathlib import Path
 from uuid import uuid4
 
-from generate_math_video import generate_math_video
-from mpm2d_topics import TOPICS, pick_topic
+from generate_math_video import generate_math_video, select_topic, topic_bank
 from verify_video import verify_video
 from upload_youtube import load_credentials, upload_video, get_publish_at_iso, DEFAULT_TOKEN_PATH
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run MPM2D Math YouTube pipeline.")
-    parser.add_argument("--topic-id", default=None, help="Specific MPM2D topic ID (optional)")
+    parser.add_argument("--topic-id", default=None, help="Specific topic or proof ID")
+    parser.add_argument("--mode", choices=("lesson", "visual_proof", "mixed"), default="lesson")
     parser.add_argument(
         "--output-dir",
         default="/content/drive/MyDrive/MathYouTube",
@@ -39,6 +39,8 @@ def main() -> None:
     args = parser.parse_args()
     if args.topic_id and args.batch != 1:
         parser.error("--topic-id requires --batch 1")
+    if args.landscape and args.mode != "lesson":
+        parser.error("--landscape is only supported in lesson mode")
     if args.batch < 1:
         parser.error("--batch must be positive")
     args.history = args.history.resolve()
@@ -71,20 +73,26 @@ def run_batch(args):
         )
     os.makedirs(args.output_dir, exist_ok=True)
     is_short = not args.landscape
-    bank = {topic["id"] for topic in TOPICS}
+    bank = {topic["id"] for topic in topic_bank(args.mode)}
 
     for slot in range(args.batch):
         print(f"\n=== Video {slot + 1}/{args.batch} ===")
         out_mp4 = os.path.join(args.output_dir, f"mpm2d_slot_{slot + 1}.mp4")
 
         if bank.issubset(state["published"]):
-            state.update(cycle=state["cycle"] + 1, published=[])
+            state.update(cycle=state["cycle"] + 1,
+                         published=[topic_id for topic_id in state["published"] if topic_id not in bank])
         seen = () if args.skip_upload and args.topic_id else state["published"]
-        topic = pick_topic(args.topic_id, published=seen)
+        # Give the first daily slot to a proof while one is available in the shared cycle.
+        prefer_proof = (slot == 0 and args.mode == "mixed" and not args.topic_id
+                        and any(proof["id"] not in seen for proof in topic_bank("visual_proof")))
+        topic = select_topic("visual_proof" if prefer_proof else args.mode,
+                             args.topic_id, published=seen)
         gen_result = generate_math_video(
             output_mp4=out_mp4,
             topic_id=topic["id"],
             is_short=is_short,
+            mode=args.mode,
         )
         video_path = gen_result["output_mp4"]
         topic_title = gen_result["topic"]["title"]
@@ -111,6 +119,7 @@ def run_batch(args):
             creds=credentials,
             is_short=is_short,
             publish_at=publish_at,
+            curricula=topic.get("curricula"),
         )
         state["published"].append(topic["id"])
         state["pending"] = None

@@ -67,10 +67,11 @@ def load_credentials(token_path: str = DEFAULT_TOKEN_PATH) -> Credentials:
     return creds
 
 
-def generate_metadata(topic: str, is_short: bool = True) -> Dict[str, object]:
+def generate_metadata(topic: str, is_short: bool = True, curricula: Optional[str] = None) -> Dict[str, object]:
     """Auto-generate an engaging title, description, and relevant tags."""
     short_tag = " #Shorts" if is_short else ""
-    title = f"{topic} | MPM2D Grade 10 Math{short_tag}"
+    series = "Math Visual Proofs" if curricula else "MPM2D Grade 10 Math"
+    title = f"{topic} | {series}{short_tag}"
     if len(title) > 100:
         title = title[:97] + "..."
 
@@ -88,6 +89,14 @@ def generate_metadata(topic: str, is_short: bool = True) -> Dict[str, object]:
         "manim",
         "education",
     ]
+    if curricula:
+        description = (f"A geometric visual proof of {topic}.\n\nCurriculum connections: {curricula}.\n\n"
+                       "#HKDSE #IBMath #OntarioMath #VisualProof #Manim"
+                       + (" #Shorts" if is_short else ""))
+        tags = ["HKDSE", "IB Math", "IBMath", "IB Math AA", "IB Math AI",
+                "Ontario Math", "OntarioMath", "visual proof", "VisualProof", "Manim",
+                "Math Visual Proofs", *curricula.split(" · ")]
+        tags = list(dict.fromkeys(tags))
     if is_short:
         tags.append("Shorts")
 
@@ -106,6 +115,7 @@ def upload_video(
     is_short: bool = True,
     publish_at: Optional[str] = None,
     creds: Optional[Credentials] = None,
+    curricula: Optional[str] = None,
 ) -> str:
     """
     Upload `video_path` to YouTube.
@@ -118,7 +128,7 @@ def upload_video(
         creds = load_credentials(token_path)
 
     youtube = build("youtube", "v3", credentials=creds)
-    meta = generate_metadata(topic, is_short=is_short)
+    meta = generate_metadata(topic, is_short=is_short, curricula=curricula)
 
     status_body: Dict[str, object] = {
         "selfDeclaredMadeForKids": False,

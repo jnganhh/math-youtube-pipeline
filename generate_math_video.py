@@ -10,10 +10,34 @@ import json
 import os
 import subprocess
 import tempfile
+import wave
+from fractions import Fraction
+from hashlib import sha256
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-from mpm2d_topics import pick_topic
+from mpm2d_topics import TOPICS, pick_topic
+from visual_proof_topics import FPS, PROOFS
+
+
+def topic_bank(mode):
+    return {"lesson": TOPICS, "visual_proof": PROOFS, "mixed": [*TOPICS, *PROOFS]}[mode]
+
+
+def select_topic(mode, topic_id=None, offset=0, published=()):
+    if mode == "lesson":
+        return pick_topic(topic_id, offset, published)
+    bank = topic_bank(mode)
+    available = [topic for topic in bank if topic["id"] not in published]
+    if topic_id:
+        for topic in bank:
+            if topic["id"] == topic_id:
+                if topic_id in published:
+                    raise ValueError(f"Already published in this cycle: {topic_id}")
+                return topic
+        raise ValueError(f"Unknown topic ID for {mode}: {topic_id}")
+    ordered = sorted(available or bank, key=lambda topic: sha256(topic["id"].encode()).digest())
+    return ordered[offset % len(ordered)]
 
 
 SCENE_SCRIPT_TEMPLATE = '''
@@ -368,20 +392,82 @@ def generate_synced_voiceover(segments: List[Dict[str, Any]], tmpdir: str, out_m
     return durations
 
 
+def generate_frame_synced_voiceover(segments, tmpdir, output):
+    """Decode each Edge TTS clip and pad its end to the next 30 fps boundary."""
+    rate = 48_000
+    samples_per_frame = rate // FPS
+    frames = []
+    with wave.open(output, "wb") as combined:
+        combined.setparams((1, 2, rate, 0, "NONE", "not compressed"))
+        for index, segment in enumerate(segments):
+            mp3 = os.path.join(tmpdir, f"proof_{index}.mp3")
+            pcm = os.path.join(tmpdir, f"proof_{index}.wav")
+            asyncio.run(_generate_tts(segment["narration"], mp3))
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", mp3,
+                            "-ac", "1", "-ar", str(rate), "-c:a", "pcm_s16le", pcm],
+                           check=True)
+            probe = subprocess.check_output(
+                ["ffprobe", "-v", "error", "-select_streams", "a:0",
+                 "-show_entries", "stream=duration_ts", "-of", "json", pcm], text=True)
+            sample_count = int(json.loads(probe)["streams"][0]["duration_ts"])
+            with wave.open(pcm, "rb") as clip:
+                if sample_count < 1 or clip.getnframes() != sample_count:
+                    raise ValueError(f"Invalid sample count for narration segment {index + 1}")
+                combined.writeframes(clip.readframes(sample_count))
+            count = (sample_count + samples_per_frame - 1) // samples_per_frame
+            combined.writeframes(b"\0" * (2 * (count*samples_per_frame - sample_count)))
+            frames.append(count)
+    return frames
+
+
+def verify_proof_timing(video_path, frames, muxed=False):
+    probe = subprocess.check_output(["ffprobe", "-v", "error", "-show_streams",
+                                     "-of", "json", video_path], text=True)
+    streams = {stream["codec_type"]:stream for stream in json.loads(probe)["streams"]}
+    video = streams["video"]
+    expected = sum(frames)
+    if (video["width"], video["height"], video["r_frame_rate"], int(video["nb_frames"])) != (
+            1080, 1920, f"{FPS}/1", expected):
+        raise ValueError(f"Proof render has unexpected resolution, fps or frame count (expected {expected})")
+    if muxed:
+        duration = Fraction(expected, FPS)
+        for stream in (video, streams["audio"]):
+            tick = Fraction(stream["time_base"])
+            if (abs(int(stream["duration_ts"])*tick - duration) > tick
+                    or int(stream["start_pts"]) != 0):
+                raise ValueError(f"Proof mux is out of sync for {stream['codec_type']}")
+
+
 def render_manim_video(
     output_dir: str,
     topic_data: Dict[str, Any],
     durations: List[float],
     is_short: bool = True,
+    segment_frames: Optional[List[int]] = None,
 ) -> str:
     """Render the Manim scene with exact per-segment durations."""
     os.makedirs(output_dir, exist_ok=True)
     scene_file = os.path.join(output_dir, "scene_mpm2d.py")
-    scene_code = (
-        SCENE_SCRIPT_TEMPLATE
-        .replace("__TOPIC_JSON__", json.dumps(topic_data))
-        .replace("__DURATIONS_JSON__", json.dumps(durations))
-    )
+    if segment_frames is not None:
+        if not is_short:
+            raise ValueError("Visual proofs require vertical video")
+        scene_class = "RenderedVisualProof"
+        scene_code = f"""
+import sys
+from manim import config
+sys.path.insert(0, {str(Path(__file__).resolve().parent)!r})
+from visual_proofs import VisualProofScene
+config.frame_width = config.frame_height * config.pixel_width / config.pixel_height
+
+class {scene_class}(VisualProofScene):
+    proof_id = {topic_data["id"]!r}
+    segment_frames = {segment_frames!r}
+"""
+    else:
+        scene_class = "MPM2DVisualScene"
+        scene_code = (SCENE_SCRIPT_TEMPLATE
+                      .replace("__TOPIC_JSON__", json.dumps(topic_data))
+                      .replace("__DURATIONS_JSON__", json.dumps(durations)))
     with open(scene_file, "w", encoding="utf-8") as f:
         f.write(scene_code)
 
@@ -389,20 +475,31 @@ def render_manim_video(
     cmd = [
         "manim",
         "-qh",
-        "--fps", "30",
+        "--fps", str(FPS),
         "--resolution", resolution,
         "--media_dir", os.path.join(output_dir, "media"),
+        *(["--disable_caching"] if segment_frames is not None else []),
         scene_file,
-        "MPM2DVisualScene",
+        scene_class,
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         raise RuntimeError(f"Manim render failed:\n{result.stderr}\n{result.stdout}")
 
     media_root = Path(output_dir) / "media" / "videos"
-    mp4_files = list(media_root.rglob("MPM2DVisualScene.mp4"))
+    mp4_files = list(media_root.rglob(f"{scene_class}.mp4"))
     if not mp4_files:
         raise FileNotFoundError(f"Could not find rendered Manim MP4 under {media_root}")
+    if segment_frames is not None:
+        partial_dir = mp4_files[0].parent / "partial_movie_files" / scene_class
+        partials = sorted(partial_dir.glob("*.mp4"))
+        if len(partials) != len(segment_frames):
+            raise ValueError(f"Expected one Manim video clip per narration segment in {partial_dir}")
+        for index, (partial, count) in enumerate(zip(partials, segment_frames), start=1):
+            try:
+                verify_proof_timing(partial, [count])
+            except ValueError as exc:
+                raise ValueError(f"Narration segment {index}: {exc}") from exc
     return str(mp4_files[0])
 
 
@@ -430,17 +527,30 @@ def generate_math_video(
     topic_id: Optional[str] = None,
     offset: int = 0,
     is_short: bool = True,
+    mode: str = "lesson",
 ) -> Dict[str, Any]:
     """End-to-end content generation with frame-accurate per-segment audio-video sync."""
-    topic_data = pick_topic(topic_id, offset=offset)
-    print(f"Selected MPM2D topic [{topic_data['id']}]: {topic_data['title']} (visual={topic_data.get('visual')})")
+    topic_data = select_topic(mode, topic_id, offset)
+    is_proof = topic_data.get("visual") == "visual_proof"
+    if is_proof and not is_short:
+        raise ValueError("Visual proofs require vertical video")
+    print(f"Selected topic [{topic_data['id']}]: {topic_data['title']} (visual={topic_data.get('visual')})")
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        voice_mp3 = os.path.join(tmpdir, "voiceover.mp3")
-        durations = generate_synced_voiceover(topic_data["segments"], tmpdir, voice_mp3)
-        print(f"Per-segment audio durations (total {sum(durations):.1f}s): {durations}")
-        raw_video = render_manim_video(tmpdir, topic_data, durations, is_short=is_short)
-        mux_audio_video(raw_video, voice_mp3, output_mp4)
+        if is_proof:
+            audio = os.path.join(tmpdir, "voiceover.wav")
+            frames = generate_frame_synced_voiceover(topic_data["segments"], tmpdir, audio)
+            print(f"Proof narration segment frames at {FPS} fps: {frames}")
+            raw_video = render_manim_video(tmpdir, topic_data, [], segment_frames=frames)
+            verify_proof_timing(raw_video, frames)
+            mux_audio_video(raw_video, audio, output_mp4)
+            verify_proof_timing(output_mp4, frames, muxed=True)
+        else:
+            audio = os.path.join(tmpdir, "voiceover.mp3")
+            durations = generate_synced_voiceover(topic_data["segments"], tmpdir, audio)
+            print(f"Per-segment audio durations (total {sum(durations):.1f}s): {durations}")
+            raw_video = render_manim_video(tmpdir, topic_data, durations, is_short=is_short)
+            mux_audio_video(raw_video, audio, output_mp4)
 
     print(f"Final synced video saved to: {output_mp4}")
     return {"output_mp4": output_mp4, "topic": topic_data}
@@ -453,7 +563,8 @@ if __name__ == "__main__":
         default="/content/drive/MyDrive/MathYouTube/mpm2d_lesson.mp4",
         help="Output .mp4 path",
     )
-    parser.add_argument("--topic-id", default=None, help="Specific MPM2D topic ID (optional)")
+    parser.add_argument("--topic-id", default=None, help="Specific topic or proof ID")
+    parser.add_argument("--mode", choices=("lesson", "visual_proof", "mixed"), default="lesson")
     parser.add_argument("--offset", type=int, default=0, help="Topic rotation offset (0..3)")
     parser.add_argument("--landscape", action="store_true", help="Render 1920x1080 instead of 1080x1920")
     args = parser.parse_args()
@@ -463,4 +574,5 @@ if __name__ == "__main__":
         topic_id=args.topic_id,
         offset=args.offset,
         is_short=not args.landscape,
+        mode=args.mode,
     )

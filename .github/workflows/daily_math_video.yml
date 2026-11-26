@@ -60,13 +60,14 @@ jobs:
           fi
           printf '%s' "$YOUTUBE_TOKEN_JSON" > token.json
 
-      - name: Produce & schedule 4 daily MPM2D videos
+      - name: Produce & schedule 4 daily math videos
         run: |
           mkdir -p output
           python run_pipeline.py \
             --history "$RUNNER_TEMP/history/published_history.json" \
             --sync-history \
             --batch 4 \
+            --mode mixed \
             --tz America/Toronto \
             --output-dir output \
             --token token.json
