@@ -389,6 +389,7 @@ def render_manim_video(
     cmd = [
         "manim",
         "-qh",
+        "--fps", "30",
         "--resolution", resolution,
         "--media_dir", os.path.join(output_dir, "media"),
         scene_file,
