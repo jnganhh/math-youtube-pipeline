@@ -25,6 +25,8 @@ def topic_bank(mode):
 
 
 def select_topic(mode, topic_id=None, offset=0, published=()):
+    if topic_id and any(t["id"] == topic_id for t in PROOFS):
+        mode = "visual_proof"
     if mode == "lesson":
         return pick_topic(topic_id, offset, published)
     bank = topic_bank(mode)
