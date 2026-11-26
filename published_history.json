@@ -6,5 +6,9 @@
     "tangent_tower",
     "factoring_special_product"
   ],
-  "pending": null
+  "pending": {
+    "topic": "arithmetic_series",
+    "publish_at": "2026-11-26T22:30:00Z",
+    "attempt": "2569b78b202542c0b75403b3ef8feff4"
+  }
 }
