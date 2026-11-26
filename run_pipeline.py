@@ -1,14 +1,13 @@
 """
 run_pipeline.py
 End-to-end orchestrator:
-1. Generate math educational video (Manim + edge-tts + ffmpeg)
+1. Pick MPM2D topic (or use --topic-id) and generate video (Manim + edge-tts + ffmpeg)
 2. Verify .mp4 exists, has non-zero duration, and has an audio track
-3. Upload to YouTube as a PRIVATE draft and print the YouTube Studio link
+3. Upload to YouTube and print the YouTube Studio link
 """
 
 import argparse
 import json
-import os
 
 from generate_math_video import generate_math_video
 from verify_video import verify_video
@@ -16,15 +15,15 @@ from upload_youtube import upload_video, DEFAULT_TOKEN_PATH
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run end-to-end Math YouTube pipeline.")
+    parser = argparse.ArgumentParser(description="Run end-to-end MPM2D Math YouTube pipeline.")
     parser.add_argument(
-        "--topic",
-        default="Visual proof of completing the square for quadratics",
-        help="Math topic",
+        "--topic-id",
+        default=None,
+        help="Specific MPM2D topic ID (rotates automatically if omitted)",
     )
     parser.add_argument(
         "--output",
-        default="/content/drive/MyDrive/MathYouTube/completing_the_square.mp4",
+        default="/content/drive/MyDrive/MathYouTube/mpm2d_short.mp4",
         help="Output .mp4 path",
     )
     parser.add_argument(
@@ -39,29 +38,31 @@ def main() -> None:
     is_short = not args.landscape
 
     # Step 1: Generate video
-    video_path = generate_math_video(
+    gen_result = generate_math_video(
         output_mp4=args.output,
-        topic=args.topic,
+        topic_id=args.topic_id,
         is_short=is_short,
     )
+    video_path = gen_result["output_mp4"]
+    topic_title = gen_result["topic"]["title"]
 
     # Step 2: Verify video before calling YouTube API
     print("Verifying rendered video...")
     info = verify_video(video_path)
     print("Verification passed:", json.dumps(info, indent=2))
 
-    # Step 3: Upload as PRIVATE draft
+    # Step 3: Upload to YouTube
     if args.skip_upload:
         print("Skipping YouTube upload (--skip-upload set).")
         return
 
     studio_url = upload_video(
         video_path=video_path,
-        topic=args.topic,
+        topic=topic_title,
         token_path=args.token,
         is_short=is_short,
     )
-    print(f"\nDone! Review your private draft at:\n{studio_url}")
+    print(f"\nDone! View your video at:\n{studio_url}")
 
 
 if __name__ == "__main__":
