@@ -1,11 +1,8 @@
 {
   "cycle": 1,
   "published": [
-    "substitute_for_x"
+    "substitute_for_x",
+    "circle_tangent"
   ],
-  "pending": {
-    "topic": "circle_tangent",
-    "publish_at": "2026-11-27T00:30:00Z",
-    "attempt": "054f5302a75945eb9a078b8cbba5368c"
-  }
+  "pending": null
 }
