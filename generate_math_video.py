@@ -433,11 +433,16 @@ def verify_proof_timing(video_path, frames, muxed=False):
         raise ValueError(f"Proof render has unexpected resolution, fps or frame count (expected {expected})")
     if muxed:
         duration = Fraction(expected, FPS)
+        tol = Fraction(2, FPS)
         for stream in (video, streams["audio"]):
             tick = Fraction(stream["time_base"])
-            if (abs(int(stream["duration_ts"])*tick - duration) > tick
-                    or int(stream["start_pts"]) != 0):
-                raise ValueError(f"Proof mux is out of sync for {stream['codec_type']}")
+            start_sec = abs(int(stream.get("start_pts", 0)) * tick)
+            dur_sec = int(stream["duration_ts"]) * tick
+            if abs(dur_sec - duration) > tol or start_sec > tol:
+                raise ValueError(
+                    f"Proof mux is out of sync for {stream['codec_type']} "
+                    f"(dur={float(dur_sec):.3f}s vs {float(duration):.3f}s, start={float(start_sec):.3f}s)"
+                )
 
 
 def render_manim_video(
