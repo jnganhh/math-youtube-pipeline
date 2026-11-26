@@ -23,6 +23,8 @@ from manim import *
 TOPIC_DATA = json.loads(r"""__TOPIC_JSON__""")
 SEG_DURATIONS = json.loads(r"""__DURATIONS_JSON__""")
 
+config.frame_width = config.frame_height * config.pixel_width / config.pixel_height
+
 class MPM2DVisualScene(Scene):
     def build_graph_visual(self, max_w):
         g = TOPIC_DATA["graph"]
@@ -92,6 +94,123 @@ class MPM2DVisualScene(Scene):
             grid.set(width=max_w)
         return grid
 
+    def build_linear_graph(self):
+        data = TOPIC_DATA["linear_graph"]
+        lo, hi = data["range"]
+        axes = Axes(x_range=[lo, hi, data["tick"]], y_range=[lo, hi, data["tick"]],
+                    x_length=3, y_length=3, tips=False,
+                    axis_config={"color": "#94a3b8", "stroke_width": 2})
+        x_label = MathTex("x", font_size=18, color="#475569").next_to(axes.x_axis, RIGHT, buff=.06)
+        y_label = MathTex("y", font_size=18, color="#475569").next_to(axes.y_axis, UP, buff=.06)
+        diagram = VGroup(axes, x_label, y_label)
+        strokes = [(axes.c2p(lo, 0), axes.c2p(hi, 0)),
+                   (axes.c2p(0, lo), axes.c2p(0, hi))]
+        for (a, b, c), color in zip(data["lines"], ["#2563eb", "#d97706"]):
+            # Clip ax + by = c to the square, including vertical lines.
+            points = []
+            if b:
+                points.extend((x, (c - a*x)/b) for x in (lo, hi))
+            if a:
+                points.extend(((c - b*y)/a, y) for y in (lo, hi))
+            ends = []
+            for x, y in points:
+                p = axes.c2p(x, y)
+                if lo <= x <= hi and lo <= y <= hi and not any(np.allclose(p, q) for q in ends):
+                    ends.append(p)
+            if len(ends) == 2:
+                diagram.add(Line(*ends, color=color, stroke_width=3))
+                strokes.append(ends)
+        radius = data.get("radius")
+        if radius:
+            diagram.add(Circle(radius=axes.x_axis.unit_size * radius,
+                               color="#d97706" if data["lines"] else "#2563eb",
+                               stroke_width=3).move_to(axes.c2p(0, 0)))
+        dots = [(axes.c2p(x, y), name) for x, y, name in data["dots"]]
+        locations = {name: p for p, name in dots}
+        for start, end in data.get("segments", []):
+            p, q = locations[start], locations[end]
+            diagram.add(Line(p, q, color="#2563eb", stroke_width=3))
+            strokes.append((p, q))
+        occupied = [(p, np.array([.05, .05])) for p, _ in dots]
+        occupied.extend((label.get_center(), np.array([label.width, label.height]) / 2)
+                        for label in (x_label, y_label))
+
+        def clear_label(label):
+            centre = label.get_center()
+            half = np.array([label.width, label.height]) / 2 + .025
+            if any(np.all(np.abs((centre - q)[:2]) < half + size) for q, size in occupied):
+                return False
+            if radius:
+                offset = np.abs((centre - axes.c2p(0, 0))[:2])
+                near = np.linalg.norm(np.maximum(offset - half, 0))
+                far = np.linalg.norm(offset + half)
+                if near <= axes.x_axis.unit_size * radius <= far:
+                    return False
+            for start, end in strokes:
+                dx, dy, _ = end - start
+                normal = np.array([-dy, dx])
+                if abs(normal @ (centre - start)[:2]) <= abs(normal) @ half:
+                    return False
+            return True
+
+        for p, name in dots:
+            dot = Dot(p, radius=.047, color="#047857")
+            label = Text(name, font_size=18, color="#0f172a")
+            for gap in (.06, .12, .2, .32, .5):
+                for direction in (UR, UL, DR, DL, UP, RIGHT, LEFT, DOWN):
+                    label.next_to(dot, direction, buff=gap)
+                    if clear_label(label):
+                        break
+                else:
+                    continue
+                break
+            else:
+                raise ValueError(f"No clear position for graph label {name}")
+            occupied.append((label.get_center(), np.array([label.width, label.height]) / 2))
+            diagram.add(dot, label)
+        caption = Text(f"Grid step: {data['tick']} unit" + ("s" if data['tick'] != 1 else ""),
+                       font_size=16, color="#475569")
+        diagram.add(caption.next_to(diagram, DOWN, buff=.12))
+        return diagram
+
+    def build_triangle(self):
+        data = TOPIC_DATA["triangle"]
+        points = np.array([[x, y, 0.] for x, y in data["points"]])
+        points *= 3 / max(np.ptp(points[:, 0]), np.ptp(points[:, 1]))
+        centre = points.mean(axis=0)
+        diagram = VGroup()
+        for i, (value, color) in enumerate(zip(data["sides"], ["#2563eb", "#059669", "#d97706"])):
+            p, q = points[i], points[(i+1) % 3]
+            edge = Line(p, q, color=color, stroke_width=5)
+            normal = rotate_vector(edge.get_unit_vector(), PI/2)
+            if np.dot(normal, edge.get_center()-centre) < 0:
+                normal *= -1
+            label = MathTex(value, font_size=24, color=color)
+            gap = .09 + (abs(normal[0])*label.width + abs(normal[1])*label.height)/2
+            label.move_to(edge.get_center() + gap*normal)
+            diagram.add(edge, label)
+        for i, value in enumerate(data["angles"]):
+            if not value:
+                continue
+            p = points[i]
+            first = Line(p, points[(i+1) % 3])
+            last = Line(p, points[(i-1) % 3])
+            radius = min(.34, first.get_length()/4, last.get_length()/4)
+            if value == "right":
+                diagram.add(RightAngle(first, last, length=radius*.65, color="#475569"))
+            else:
+                diagram.add(Angle(first, last, radius=radius, color="#475569"))
+                outward = -(first.get_unit_vector() + last.get_unit_vector())
+                label = MathTex(value, font_size=22, color="#0f172a")
+                label.next_to(VectorizedPoint(p), outward / np.linalg.norm(outward), buff=.07)
+                diagram.add(label)
+        if data["angles"][1] == "right":
+            key = VGroup(*(Text(s, color=c, font_size=16) for s, c in
+                         [("Adjacent", "#2563eb"), ("Opposite", "#059669"),
+                          ("Hypotenuse", "#d97706")])).arrange(RIGHT, buff=.18)
+            diagram.add(key.next_to(diagram, DOWN, buff=.15))
+        return diagram
+
     def construct(self):
         self.camera.background_color = "#ffffff"
         max_w = 4.0 if self.camera.frame_width < 6 else 11.0
@@ -101,6 +220,8 @@ class MPM2DVisualScene(Scene):
         if title.width > max_w:
             title.set(width=max_w)
         subtitle = Text(TOPIC_DATA["subtitle"], font_size=20, color="#2563eb")
+        if subtitle.width > max_w:
+            subtitle.set(width=max_w)
         header = VGroup(title, subtitle).arrange(DOWN, buff=0.1).to_edge(UP, buff=0.4)
 
         rule_box = RoundedRectangle(
@@ -125,17 +246,23 @@ class MPM2DVisualScene(Scene):
         visual_anchor = rule_card.get_bottom()[1] - 0.35
 
         graph_objs = None
-        area_grid = None
+        diagram = None
         if visual_mode == "graph":
             axes_grp, curves_grp, dots_grp, aos_grp = self.build_graph_visual(max_w)
             full_graph = VGroup(axes_grp, curves_grp, dots_grp, aos_grp)
             full_graph.move_to([0, visual_anchor - full_graph.height / 2 - 0.1, 0])
             graph_objs = (axes_grp, curves_grp, dots_grp, aos_grp)
             card_top_y = full_graph.get_bottom()[1] - 0.35
-        elif visual_mode == "area":
-            area_grid = self.build_area_visual(max_w)
-            area_grid.move_to([0, visual_anchor - area_grid.height / 2 - 0.15, 0])
-            card_top_y = area_grid.get_bottom()[1] - 0.35
+        elif visual_mode in {"area", "triangle", "linear_graph"}:
+            if visual_mode == "area":
+                diagram = self.build_area_visual(max_w)
+            elif visual_mode == "triangle":
+                diagram = self.build_triangle()
+            else:
+                diagram = self.build_linear_graph()
+            diagram.scale(min(1, max_w / diagram.width, 2.9 / diagram.height))
+            diagram.move_to([0, visual_anchor - diagram.height / 2 - 0.15, 0])
+            card_top_y = diagram.get_bottom()[1] - 0.35
         else:
             card_top_y = visual_anchor - 0.3
 
@@ -164,10 +291,11 @@ class MPM2DVisualScene(Scene):
             new_card = VGroup(box, content)
             new_card.move_to([0, card_top_y - new_card.height / 2, 0])
 
-            anims = []
-            if active_card is not None:
-                anims.append(FadeOut(active_card, shift=UP * 0.1))
-            anims.append(FadeIn(new_card, shift=UP * 0.1))
+            reveal = FadeIn(new_card, shift=UP * 0.1)
+            if active_card is None:
+                anims = [reveal]
+            else:
+                anims = [Succession(FadeOut(active_card), reveal)]
 
             # Trigger visual animations in sync with early segments
             if visual_mode == "graph" and graph_objs is not None:
@@ -181,9 +309,9 @@ class MPM2DVisualScene(Scene):
                         anims.append(FadeIn(dots_grp))
                     if len(aos_grp) > 0:
                         anims.append(Create(aos_grp))
-            elif visual_mode == "area" and area_grid is not None:
+            elif diagram is not None:
                 if i == 0:
-                    anims.append(FadeIn(area_grid))
+                    anims.append(FadeIn(diagram))
 
             rt = min(1.4, max(0.5, dur * 0.35))
             self.play(*anims, run_time=rt)

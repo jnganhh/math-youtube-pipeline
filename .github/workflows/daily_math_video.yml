@@ -6,12 +6,35 @@ on:
     - cron: "0 14 * * *"
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab
 
+permissions:
+  contents: write
+
+concurrency:
+  group: mpm2d-publication
+  cancel-in-progress: false
+
 jobs:
   generate-and-schedule:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Open persistent publication history
+        shell: bash
+        run: |
+          store="$RUNNER_TEMP/history"
+          if git ls-remote --exit-code --heads origin publication-history; then
+            git fetch origin refs/heads/publication-history
+            git worktree add --detach "$store" FETCH_HEAD
+          else
+            result=$?
+            [[ $result == 2 ]] || exit "$result"
+            git worktree add --detach "$store" HEAD
+            git -C "$store" switch --orphan publication-history
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -41,6 +64,8 @@ jobs:
         run: |
           mkdir -p output
           python run_pipeline.py \
+            --history "$RUNNER_TEMP/history/published_history.json" \
+            --sync-history \
             --batch 4 \
             --tz America/Toronto \
             --output-dir output \

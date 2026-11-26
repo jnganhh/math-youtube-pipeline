@@ -76,18 +76,13 @@ def generate_metadata(topic: str, is_short: bool = True) -> Dict[str, object]:
 
     description = (
         f"A clear, step-by-step MPM2D math lesson on: {topic}.\n\n"
-        "In this 2.5-minute walkthrough:\n"
-        "- Core rule & formula\n"
-        "- Step-by-step worked example\n"
-        "- Practice problem to test yourself\n\n"
-        "#MPM2D #Grade10Math #Quadratics #MathTutorial #VisualMath"
+        "#MPM2D #Grade10Math #MathTutorial #VisualMath"
         + (" #Shorts" if is_short else "")
     )
 
     tags: List[str] = [
         "MPM2D",
         "Grade 10 Math",
-        "quadratics",
         "math",
         "algebra",
         "manim",
