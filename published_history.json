@@ -4,5 +4,9 @@
     "substitute_for_x",
     "circle_tangent"
   ],
-  "pending": null
+  "pending": {
+    "topic": "tangent_tower",
+    "publish_at": "2026-11-27T01:30:00Z",
+    "attempt": "a80345c4110348ddb6086c9fa05d38c5"
+  }
 }
